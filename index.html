@@ -20,7 +20,9 @@
                             redHover: '#b91c1c',
                             redLight: '#fef2f2',
                             dark: '#0f172a',
-                            charcoal: '#1e293b'
+                            charcoal: '#1e293b',
+                            grayLight: '#f8fafc',
+                            border: '#e2e8f0'
                         }
                     },
                     fontFamily: {
@@ -31,22 +33,25 @@
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #090d16; color: #1e293b; }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #0f172a; overflow-x: hidden; }
+        
+        /* Device Viewport Frame Styles */
         #viewport-wrapper {
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             margin: 0 auto;
+            width: 100%;
         }
         .mode-mobile {
             max-width: 420px !important;
-            min-height: 860px;
-            border: 14px solid #1e293b;
+            min-height: 840px;
+            border: 12px solid #0f172a;
             border-top-width: 24px;
             border-bottom-width: 28px;
-            border-radius: 48px;
-            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.1);
-            margin-top: 24px !important;
-            margin-bottom: 48px !important;
-            overflow: hidden;
+            border-radius: 40px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.3);
+            margin-top: 16px !important;
+            margin-bottom: 32px !important;
+            overflow-x: hidden;
             position: relative;
         }
         .mode-mobile::before {
@@ -55,376 +60,609 @@
             top: -12px;
             left: 50%;
             transform: translateX(-50%);
-            width: 120px;
-            height: 14px;
+            width: 110px;
+            height: 12px;
             background-color: #0f172a;
             border-bottom-left-radius: 10px;
             border-bottom-right-radius: 10px;
             z-index: 100;
         }
-        .mode-desktop {
+        .mode-laptop {
             max-width: 100% !important;
             border: none;
             border-radius: 0;
             box-shadow: none;
         }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #dc2626; border-radius: 3px; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #f8fafc; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #dc2626; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-800 antialiased selection:bg-red-100 selection:text-red-900">
+<body class="bg-slate-100 text-slate-900 antialiased selection:bg-red-100 selection:text-red-900">
 
-    <!-- TOP DEVICE VIEWPORT SWITCHER & STATUS BAR -->
-    <div id="device-switcher-bar" class="bg-slate-900 text-white text-xs py-2.5 px-4 border-b border-slate-800 sticky top-0 z-50 flex flex-wrap items-center justify-between shadow-lg gap-2">
-        <div class="flex items-center space-x-3">
-            <span class="bg-brand-red text-white text-[10px] font-black uppercase px-2.5 py-1 rounded tracking-widest shadow-sm">Abdullah Meat Hub Admin</span>
-            <span class="hidden md:inline text-slate-300 font-medium">Secure Admin Portal • Live Scale Sync Active</span>
-        </div>
-
-        <div class="flex items-center space-x-1 bg-slate-800 p-1 rounded-xl border border-slate-700">
-            <button onclick="setViewportMode('desktop')" id="btn-desktop-view" class="px-3 py-1.5 rounded-lg font-bold flex items-center space-x-1.5 text-brand-red bg-slate-900 shadow-sm transition">
-                <i class="fa-solid fa-laptop text-sm"></i>
-                <span class="text-[11px]">Laptop View</span>
-            </button>
-            <button onclick="setViewportMode('mobile')" id="btn-mobile-view" class="px-3 py-1.5 rounded-lg font-bold flex items-center space-x-1.5 text-slate-400 hover:text-white transition">
-                <i class="fa-solid fa-mobile-screen-button text-sm"></i>
-                <span class="text-[11px]">Mobile View</span>
-            </button>
-        </div>
-
-        <div class="flex items-center space-x-3 text-slate-300">
-            <span id="sync-status-chip" class="flex items-center gap-1.5 bg-emerald-950 text-emerald-400 border border-emerald-800 px-2.5 py-1 rounded-lg font-bold text-[11px]">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Scale Synced
+    <!-- TOP SYSTEM CONTROL BAR & DEVICE SWITCHER -->
+    <header class="bg-slate-900 text-white text-xs py-2 px-3 sm:px-4 sticky top-0 z-50 flex items-center justify-between border-b border-slate-800 shadow-md">
+        <div class="flex items-center space-x-2">
+            <span class="bg-brand-red text-white text-[9px] font-black uppercase px-2 py-0.5 rounded tracking-wider shadow-sm">
+                v2.5
             </span>
-            <button onclick="authSystem.logout()" class="text-slate-400 hover:text-red-400 font-bold transition text-xs flex items-center gap-1 bg-slate-800 px-2.5 py-1 rounded-lg">
-                <i class="fa-solid fa-power-off"></i> Logout
+            <span class="font-extrabold text-slate-200 truncate max-w-[160px] sm:max-w-none">
+                <i class="fa-solid fa-drumstick-bite mr-1 text-red-500"></i> Abdullah Meat Hub
+            </span>
+        </div>
+
+        <!-- Laptop / Mobile View Switcher -->
+        <div class="flex items-center space-x-1 bg-slate-800 p-1 rounded-xl border border-slate-700">
+            <button onclick="setViewportMode('laptop')" id="btn-laptop-view" class="px-2.5 py-1 rounded-lg font-bold flex items-center space-x-1 text-brand-red bg-white shadow-sm transition">
+                <i class="fa-solid fa-laptop text-[10px]"></i>
+                <span class="text-[10px] hidden sm:inline">Laptop</span>
+            </button>
+            <button onclick="setViewportMode('mobile')" id="btn-mobile-view" class="px-2.5 py-1 rounded-lg font-bold flex items-center space-x-1 text-slate-300 hover:text-white transition">
+                <i class="fa-solid fa-mobile-screen-button text-[10px]"></i>
+                <span class="text-[10px] hidden sm:inline">Mobile</span>
             </button>
         </div>
-    </div>
 
-    <!-- MAIN VIEWPORT CONTAINER FRAME -->
-    <div id="viewport-wrapper" class="mode-desktop bg-white min-h-screen flex flex-col justify-between shadow-2xl">
+        <!-- Quick Status Indicators -->
+        <div class="hidden lg:flex items-center space-x-3 text-slate-300 font-medium text-[11px]">
+            <span class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Scale Sync: <strong class="text-white">Active</strong></span>
+            </span>
+            <span class="text-slate-700">|</span>
+            <span class="text-amber-400 font-bold"><i class="fa-solid fa-calendar-day mr-1"></i> Nov 04, 2026</span>
+        </div>
+    </header>
 
-        <!-- LOGIN / 2FA AUTHENTICATION OVERLAY -->
-        <div id="auth-modal-overlay" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl border border-slate-200 space-y-6">
+    <!-- VIEWPORT FRAME WRAPPER -->
+    <div id="viewport-wrapper" class="mode-laptop bg-white min-h-screen flex flex-col justify-between shadow-2xl">
+
+        <!-- 1. AUTHENTICATION LOGIN SCREEN FLOW -->
+        <div id="auth-screen" class="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
+            <div class="absolute -top-32 -left-32 w-80 h-80 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-32 -right-32 w-80 h-80 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="w-full max-w-sm sm:max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 relative z-10 space-y-6">
                 <div class="text-center space-y-2">
-                    <div class="w-14 h-14 bg-brand-red text-white rounded-2xl mx-auto flex items-center justify-center text-2xl font-black shadow-lg">
-                        AMH
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-brand-red text-white rounded-2xl flex items-center justify-center text-2xl sm:text-3xl font-black mx-auto shadow-lg shadow-red-500/30">
+                        A
                     </div>
-                    <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight">Abdullah Meat Hub</h2>
-                    <p class="text-xs text-slate-500 font-semibold">Secure Admin & Management Portal Login</p>
+                    <h1 class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 uppercase">Abdullah Meat Hub</h1>
+                    <p class="text-[11px] sm:text-xs text-slate-500 font-semibold uppercase tracking-wider">Management Dashboard Access</p>
                 </div>
 
-                <form id="login-form" onsubmit="handleLoginSubmit(event)" class="space-y-4">
+                <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-black uppercase text-slate-700 mb-1">Admin Email</label>
-                        <input type="email" id="login-email" required value="admin@abdullahmeathub.pk" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-brand-red">
+                        <label class="block text-xs font-black uppercase text-slate-700 mb-1">Email Address</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-envelope absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
+                            <input type="email" id="login-email" required value="admin@abdullahmeathub.pk" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red focus:bg-white transition">
+                        </div>
                     </div>
+
                     <div>
                         <label class="block text-xs font-black uppercase text-slate-700 mb-1">Password</label>
-                        <input type="password" id="login-password" required value="password123" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-brand-red">
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
+                            <input type="password" id="login-password" required value="••••••••••••" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red focus:bg-white transition">
+                        </div>
                     </div>
-                    <div id="otp-container" class="hidden space-y-2 pt-2">
-                        <label class="block text-xs font-black uppercase text-brand-red mb-1"><i class="fa-solid fa-shield-halal mr-1"></i> 2FA Authenticator Code</label>
-                        <input type="text" id="login-otp" placeholder="Enter 6-digit code (e.g. 123456)" class="w-full bg-red-50 border border-red-300 rounded-xl px-4 py-3 text-sm font-bold tracking-widest text-center text-brand-red focus:outline-none">
+
+                    <div class="flex items-center justify-between text-xs">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" checked class="rounded text-brand-red focus:ring-brand-red">
+                            <span class="text-slate-600 font-medium">Remember me</span>
+                        </label>
+                        <a href="#" class="text-brand-red font-bold hover:underline">Forgot?</a>
                     </div>
-                    <button type="submit" id="login-btn" class="w-full bg-brand-red hover:bg-brand-redHover text-white font-extrabold py-3.5 rounded-xl shadow-lg transition text-sm uppercase tracking-wider">
-                        Proceed to 2FA Verification
+
+                    <button type="submit" class="w-full bg-brand-red hover:bg-brand-redHover text-white font-black py-3.5 rounded-xl shadow-lg shadow-red-500/20 transition text-xs uppercase tracking-wider flex items-center justify-center space-x-2">
+                        <span>Sign In to Portal</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
                     </button>
                 </form>
-                <div class="text-[11px] text-center text-slate-400">
-                    Protected by Abdullah Meat Hub Security Engine &bull; Version 1.0
+
+                <div class="border-t border-slate-100 pt-4 text-center">
+                    <p class="text-[10px] text-slate-400 font-medium">Protected by 2FA Authenticator & 256-Bit SSL</p>
                 </div>
             </div>
         </div>
 
-        <!-- APP DASHBOARD LAYOUT -->
-        <div id="dashboard-app-body" class="flex-grow flex flex-col md:flex-row relative">
-            
-            <!-- MOBILE HEADER TOGGLE BAR -->
-            <div class="md:hidden bg-slate-900 text-white px-4 py-3 flex items-center justify-between border-b border-slate-800 z-30">
-                <div class="flex items-center space-x-2">
-                    <span class="w-8 h-8 rounded-lg bg-brand-red text-white flex items-center justify-center font-black text-sm">AMH</span>
-                    <div>
-                        <h3 class="text-xs font-black uppercase tracking-tight">Abdullah Meat Hub</h3>
-                        <p class="text-[10px] text-slate-400" id="mobile-current-screen-title">Overview</p>
-                    </div>
+        <!-- 2FA CODE MODAL -->
+        <div id="modal-2fa" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+            <div class="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl space-y-5 text-center relative border border-slate-100">
+                <div class="w-12 h-12 bg-red-50 text-brand-red rounded-2xl flex items-center justify-center text-xl mx-auto font-black">
+                    <i class="fa-solid fa-shield-halal"></i>
                 </div>
-                <button onclick="toggleMobileSidebar()" class="bg-slate-800 p-2 rounded-xl text-slate-200 hover:text-white">
-                    <i class="fa-solid fa-bars text-lg" id="mobile-menu-icon"></i>
+                <div>
+                    <h3 class="text-base sm:text-lg font-black text-slate-900">Enter 2FA Security Code</h3>
+                    <p class="text-xs text-slate-500 mt-1">Check your Authenticator App for 6-digit code</p>
+                </div>
+
+                <div class="flex justify-center">
+                    <input type="text" maxlength="6" id="2fa-input" placeholder="123456" class="w-44 tracking-[0.4em] text-center font-black text-xl py-2.5 bg-slate-50 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-red">
+                </div>
+
+                <button onclick="verify2FAAndEnter()" class="w-full bg-brand-red hover:bg-brand-redHover text-white font-extrabold py-3 rounded-xl transition text-xs uppercase shadow-md">
+                    Verify & Continue
                 </button>
             </div>
+        </div>
 
-            <!-- SIDEBAR NAVIGATION -->
-            <aside id="sidebar-nav" class="hidden md:block w-full md:w-64 bg-slate-900 text-slate-300 border-r border-slate-800 flex-shrink-0 z-40 absolute md:relative inset-y-0 left-0 transition-all duration-300">
-                <div class="p-5 border-b border-slate-800 bg-slate-950">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-xl bg-brand-red text-white flex items-center justify-center font-black text-xl shadow-md">
+        <!-- 2. MAIN ADMIN DASHBOARD SYSTEM -->
+        <div id="dashboard-app" class="hidden min-h-screen flex flex-col md:flex-row bg-slate-50 relative">
+
+            <!-- MOBILE TOP BAR HEADER -->
+            <div class="md:hidden bg-slate-900 text-white px-3 py-2.5 flex items-center justify-between sticky top-0 z-40 shadow-md">
+                <div class="flex items-center space-x-2">
+                    <div class="w-7 h-7 rounded-lg bg-brand-red text-white flex items-center justify-center font-black text-xs shadow">
+                        A
+                    </div>
+                    <div>
+                        <h2 class="font-black text-[11px] uppercase tracking-tight text-white leading-tight">Abdullah Meat Hub</h2>
+                        <span class="text-[8px] text-red-400 font-extrabold uppercase tracking-widest">Admin Panel</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <button onclick="toggleMobileSidebar()" class="p-2 bg-slate-800 text-white rounded-xl hover:bg-slate-700">
+                        <i class="fa-solid fa-bars text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SIDEBAR NAVIGATION (RESPONSIVE DRAWER ON MOBILE) -->
+            <aside id="sidebar-menu" class="hidden md:flex flex-col w-64 bg-slate-900 text-white border-r border-slate-800 shrink-0 md:min-h-screen fixed md:static inset-y-0 left-0 z-50 transition-transform duration-300 shadow-2xl">
+                <!-- Mobile Drawer Header -->
+                <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-brand-red text-white flex items-center justify-center font-black text-base shadow">
                             A
                         </div>
                         <div>
-                            <span class="text-base font-black tracking-tight text-white uppercase block">ABDULLAH</span>
-                            <span class="text-[10px] font-extrabold tracking-widest text-brand-red uppercase block">Meat Hub System</span>
+                            <h1 class="font-black text-xs tracking-tight text-white uppercase leading-none">Abdullah</h1>
+                            <span class="text-[9px] font-extrabold text-brand-red uppercase tracking-widest block mt-0.5">Meat Hub System</span>
                         </div>
                     </div>
+                    <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white p-2">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
                 </div>
 
-                <!-- Sales Channel Filter -->
-                <div class="p-4 border-b border-slate-800 bg-slate-900/50">
-                    <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Sales Channel Filter</label>
-                    <div class="grid grid-cols-3 gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold text-center">
-                        <button onclick="setChannelFilter('All')" id="channel-btn-All" class="py-1.5 rounded-lg bg-brand-red text-white shadow transition">All</button>
-                        <button onclick="setChannelFilter('Online')" id="channel-btn-Online" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">Online</button>
-                        <button onclick="setChannelFilter('Shop')" id="channel-btn-Shop" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">Shop</button>
+                <!-- Channel Filter Toggle (Online vs Physical) -->
+                <div class="p-3 bg-slate-950/50 border-b border-slate-800">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Sales Channel Filter</label>
+                    <div class="grid grid-cols-3 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-[10px] font-bold">
+                        <button onclick="setChannelFilter('all')" id="channel-all" class="py-1 rounded-lg bg-brand-red text-white text-center shadow">All</button>
+                        <button onclick="setChannelFilter('online')" id="channel-online" class="py-1 rounded-lg text-slate-400 hover:text-white text-center">Online</button>
+                        <button onclick="setChannelFilter('physical')" id="channel-physical" class="py-1 rounded-lg text-slate-400 hover:text-white text-center">Shop</button>
                     </div>
                 </div>
 
-                <!-- Navigation Links -->
-                <nav class="p-3 space-y-1 text-xs font-bold uppercase tracking-wider overflow-y-auto max-h-[calc(100vh-260px)]">
-                    <button onclick="adminRouter.navigate('overview')" id="nav-overview" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-brand-red text-white shadow-md transition">
-                        <i class="fa-solid fa-chart-pie w-5 text-center"></i>
-                        <span>Overview</span>
+                <!-- Sidebar Nav Links -->
+                <nav class="p-3 space-y-1 text-xs font-bold flex-grow overflow-y-auto">
+                    <button onclick="router.navigate('overview'); toggleMobileSidebar();" id="nav-overview" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition bg-brand-red text-white">
+                        <i class="fa-solid fa-chart-pie w-5 text-center"></i> <span>Overview</span>
                     </button>
-                    <button onclick="adminRouter.navigate('purchases')" id="nav-purchases" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
-                        <i class="fa-solid fa-truck-ramp-box w-5 text-center"></i>
-                        <span>Daily Purchases</span>
+                    <button onclick="router.navigate('purchases'); toggleMobileSidebar();" id="nav-purchases" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
+                        <i class="fa-solid fa-truck-ramp-box w-5 text-center text-red-400"></i> <span>Daily Purchases</span>
                     </button>
-                    <button onclick="adminRouter.navigate('rates')" id="nav-rates" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
-                        <i class="fa-solid fa-tags w-5 text-center"></i>
-                        <span>Daily Rates</span>
+                    <button onclick="router.navigate('rates'); toggleMobileSidebar();" id="nav-rates" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
+                        <i class="fa-solid fa-tags w-5 text-center text-red-400"></i> <span>Daily Rates</span>
                     </button>
-                    <button onclick="adminRouter.navigate('close-day')" id="nav-close-day" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
-                        <i class="fa-solid fa-lock w-5 text-center"></i>
-                        <span>Day End Summary</span>
+                    <button onclick="router.navigate('close-day'); toggleMobileSidebar();" id="nav-close-day" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
+                        <i class="fa-solid fa-lock w-5 text-center text-red-400"></i> <span>Day End Summary</span>
                     </button>
-                    <button onclick="adminRouter.navigate('suppliers')" id="nav-suppliers" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
-                        <i class="fa-solid fa-address-book w-5 text-center"></i>
-                        <span>Suppliers & Credit</span>
+                    <button onclick="router.navigate('suppliers'); toggleMobileSidebar();" id="nav-suppliers" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
+                        <i class="fa-solid fa-address-book w-5 text-center text-red-400"></i> <span>Suppliers & Credit</span>
                     </button>
-                    <button onclick="adminRouter.navigate('orders')" id="nav-orders" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
-                        <i class="fa-solid fa-bag-shopping w-5 text-center"></i>
-                        <span>Online Orders</span>
+                    <button onclick="router.navigate('orders'); toggleMobileSidebar();" id="nav-orders" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
+                        <i class="fa-solid fa-basket-shopping w-5 text-center text-red-400"></i> <span>Online Orders</span>
                     </button>
-                    <button onclick="adminRouter.navigate('csv-upload')" id="nav-csv-upload" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-amber-400 hover:bg-slate-800 transition border border-amber-500/30 bg-amber-500/10 mt-4">
-                        <i class="fa-solid fa-file-csv w-5 text-center"></i>
-                        <span>CSV Data Upload</span>
+                    <button onclick="openCSVModal(); toggleMobileSidebar();" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-amber-400 hover:bg-slate-800 hover:text-amber-300 font-extrabold mt-4 border border-amber-500/20 bg-amber-500/5">
+                        <i class="fa-solid fa-file-csv w-5 text-center text-amber-400"></i> <span>CSV Data Upload</span>
                     </button>
                 </nav>
+
+                <!-- User Profile & Logout -->
+                <div class="p-3.5 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-slate-800 text-white font-black text-xs flex items-center justify-center border border-slate-700">
+                            AH
+                        </div>
+                        <div>
+                            <span class="block text-xs font-bold text-white leading-tight">Abdullah</span>
+                            <span class="block text-[9px] text-slate-400">Super Admin</span>
+                        </div>
+                    </div>
+                    <button onclick="handleLogout()" class="text-slate-400 hover:text-red-400 p-2">
+                        <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                    </button>
+                </div>
             </aside>
 
-            <!-- MAIN CONTENT AREA WITH CLEAN WHITE BACKGROUND -->
-            <main id="admin-main-content" class="flex-grow bg-white text-slate-900 p-4 sm:p-8 overflow-y-auto">
-                <!-- Dynamically Rendered -->
+            <!-- MAIN CONTENT DISPLAY AREA -->
+            <main class="flex-grow p-3 sm:p-5 lg:p-8 max-w-full overflow-x-hidden">
+                <div id="view-target" class="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+                    <!-- RENDERED BY ROUTER JS -->
+                </div>
             </main>
         </div>
 
-        <!-- FOOTER -->
-        <footer class="bg-slate-950 text-white py-4 px-6 text-center text-xs border-t border-slate-900">
-            Abdullah Meat Hub Karachi &bull; Admin Portal &bull; Red, Black & White Professional Edition &copy; 2026
-        </footer>
+        <!-- CSV FILE UPLOAD MODAL -->
+        <div id="modal-csv-upload" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+            <div class="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-5 border border-slate-200">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-black text-xl">
+                            <i class="fa-solid fa-file-csv"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-black text-slate-900">Upload CSV Data Sheet</h3>
+                            <p class="text-xs text-slate-500">Auto-parse entries into Purchases</p>
+                        </div>
+                    </div>
+                    <button onclick="closeCSVModal()" class="text-slate-400 hover:text-slate-600 p-2">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-black uppercase text-slate-700 mb-1">Select Import Target</label>
+                        <select id="csv-target-category" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-brand-red">
+                            <option value="chicken">Chicken Data Entries</option>
+                            <option value="beef">Beef Data Entries</option>
+                            <option value="mutton">Mutton Data Entries</option>
+                        </select>
+                    </div>
+
+                    <div class="border-2 border-dashed border-slate-300 rounded-2xl p-5 text-center hover:border-brand-red transition cursor-pointer bg-slate-50" onclick="document.getElementById('csv-file-input').click()">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 mb-2"></i>
+                        <p class="text-xs font-bold text-slate-700">Click to upload CSV File</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Accepts .csv format containing entries</p>
+                        <input type="file" id="csv-file-input" accept=".csv" class="hidden" onchange="handleCSVFileSelected(event)">
+                    </div>
+
+                    <div id="csv-preview-box" class="hidden p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 font-medium">
+                        <i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i>
+                        <span id="csv-preview-text">CSV File Parsed Successfully!</span>
+                    </div>
+                </div>
+
+                <div class="flex space-x-3 pt-2">
+                    <button onclick="closeCSVModal()" class="w-1/2 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-xl text-xs uppercase">Cancel</button>
+                    <button onclick="processCSVImport()" class="w-1/2 py-3 bg-brand-red hover:bg-brand-redHover text-white font-extrabold rounded-xl text-xs uppercase shadow-md">Process</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
     <script>
-        let currentUser = null;
-        let currentChannelFilter = 'All';
+        /* --- GLOBAL APPLICATION STATE --- */
+        let isAuthenticated = false;
+        let activeChannelFilter = 'all'; // 'all', 'online', 'physical'
         let currentRoute = 'overview';
-        let isMobileSidebarOpen = false;
+        let activeRatesCategory = 'chicken';
 
+        // Initial Dynamic Data Datasets
         let purchasesData = [
-            { id: 1, date: '2026-11-04', category: 'chicken', birds: 120, kg: 240, rate: 420, total: 100800, paymentType: 'Half', paidAmount: 50000, remaining: 50800, supplier: 'Al-Madina Poultry' },
-            { id: 2, date: '2026-11-04', category: 'beef', birds: 0, kg: 150, rate: 850, total: 127500, paymentType: 'Full', paidAmount: 127500, remaining: 0, supplier: 'Karachi Cattle Farm' },
-            { id: 3, date: '2026-11-04', category: 'mutton', birds: 0, kg: 60, rate: 1800, total: 108000, paymentType: 'Credit', paidAmount: 0, remaining: 108000, supplier: 'Sindh Goat Traders' }
+            { id: 'p-1', date: '2026-11-04', category: 'chicken', birds: 180, weight: 260, rate: 390, total: 101400, paid: 50000, remaining: 51400, paymentType: 'half', supplier: 'Bismillah Poultry Farm' },
+            { id: 'p-2', date: '2026-11-04', category: 'beef', birds: 0, weight: 210, rate: 760, total: 159600, paid: 159600, remaining: 0, paymentType: 'full', supplier: 'Karachi Cattle Farm' },
+            { id: 'p-3', date: '2026-11-04', category: 'mutton', birds: 0, weight: 95, rate: 1650, total: 156750, paid: 0, remaining: 156750, paymentType: 'credit', supplier: 'Al-Madina Livestock' }
         ];
 
-        let ratesData = {
-            chicken: { whole: 620, boneless: 880, drumstick: 700, qeema: 900 },
-            beef: { curry: 1100, boneless: 1350, qeema: 1300, nihari: 1450 },
-            mutton: { karahi: 2450, chops: 2650, qeema: 2500 }
+        let dailyRatesData = {
+            chicken: [
+                { id: 'c1', name: 'Fresh Chicken Whole Cut', rate: 620, yesterday: 610 },
+                { id: 'c2', name: 'Chicken Boneless Breast', rate: 880, yesterday: 870 },
+                { id: 'c3', name: 'Chicken Drumsticks', rate: 700, yesterday: 700 }
+            ],
+            beef: [
+                { id: 'b1', name: 'Prime Beef Bone-in Cut', rate: 1100, yesterday: 1080 },
+                { id: 'b2', name: 'Beef Undercut Boneless', rate: 1450, yesterday: 1400 }
+            ],
+            mutton: [
+                { id: 'm1', name: 'Desi Mutton Karahi Cut', rate: 2450, yesterday: 2400 },
+                { id: 'm2', name: 'Mutton Chops (Chaamp)', rate: 2650, yesterday: 2600 }
+            ]
         };
 
         let suppliersData = [
-            { id: 1, name: 'Al-Madina Poultry', phone: '0300-1234567', category: 'Chicken', totalBought: 250000, totalPaid: 200000, remaining: 50000, status: 'Partial' },
-            { id: 2, name: 'Karachi Cattle Farm', phone: '0321-9876543', category: 'Beef', totalBought: 450000, totalPaid: 450000, remaining: 0, status: 'Paid' },
-            { id: 3, name: 'Sindh Goat Traders', phone: '0333-5544332', category: 'Mutton', totalBought: 320000, totalPaid: 150000, remaining: 170000, status: 'Credit' }
+            { name: 'Bismillah Poultry Farm', phone: '0300-1234567', totalBought: 280000, totalPaid: 180000, remainingBalance: 100000, lastStatus: 'Half Paid' },
+            { name: 'Karachi Cattle Farm', phone: '0312-9876543', totalBought: 450000, totalPaid: 450000, remainingBalance: 0, lastStatus: 'Full Paid' },
+            { name: 'Al-Madina Livestock', phone: '0333-4567890', totalBought: 310000, totalPaid: 100000, remainingBalance: 210000, lastStatus: 'Full Credit' }
         ];
 
         let ordersData = [
-            { id: 'AMH-901', customer: 'Imran Khan', phone: '0300-5551234', area: 'Gulshan-e-Iqbal', total: 3420, status: 'Delivered', channel: 'Online' },
-            { id: 'AMH-902', customer: 'Ayesha Malik', phone: '0333-4448899', area: 'DHA Phase 6', total: 5800, status: 'Packed', channel: 'Online' },
-            { id: 'AMH-903', customer: 'Walk-in Customer', phone: '0312-0000000', area: 'Store Counter', total: 2150, status: 'Completed', channel: 'Shop' }
+            { id: 'ORD-9021', customer: 'Zainab Ahmed', phone: '0321-4455667', channel: 'online', category: 'Chicken', items: '2 kg Chicken Boneless', total: 1760, status: 'New', time: '10:30 AM' },
+            { id: 'ORD-9022', customer: 'Tariq Mehmood', phone: '0300-9988776', channel: 'online', category: 'Beef', items: '3 kg Beef Bone-in', total: 3300, status: 'Confirmed', time: '11:15 AM' },
+            { id: 'ORD-9023', customer: 'Walk-in Shop Sale', phone: 'N/A', channel: 'physical', category: 'Mutton', items: '1.5 kg Mutton Karahi', total: 3675, status: 'Delivered', time: '11:45 AM' }
         ];
 
-        const authSystem = {
-            login: function(email, password, otp) {
-                if (email && password && otp === '123456') {
-                    currentUser = { name: 'Abdullah Admin', email: email, role: 'Owner' };
-                    document.getElementById('auth-modal-overlay').classList.add('hidden');
-                    adminRouter.navigate('overview');
-                } else {
-                    alert('Invalid credentials or 2FA code! Use any email/password and enter OTP: 123456');
-                }
-            },
-            logout: function() {
-                currentUser = null;
-                document.getElementById('auth-modal-overlay').classList.remove('hidden');
-            }
-        };
-
-        function handleLoginSubmit(e) {
-            e.preventDefault();
-            const otpContainer = document.getElementById('otp-container');
-            const loginBtn = document.getElementById('login-btn');
-            if (otpContainer.classList.contains('hidden')) {
-                otpContainer.classList.remove('hidden');
-                loginBtn.innerText = 'Verify & Open Dashboard';
-                document.getElementById('login-otp').focus();
-            } else {
-                const email = document.getElementById('login-email').value;
-                const pass = document.getElementById('login-password').value;
-                const otp = document.getElementById('login-otp').value;
-                authSystem.login(email, pass, otp);
-            }
-        }
-
+        /* --- DEVICE SWITCHER TOGGLE --- */
         function setViewportMode(mode) {
             const wrapper = document.getElementById('viewport-wrapper');
-            const btnDesk = document.getElementById('btn-desktop-view');
-            const btnMob = document.getElementById('btn-mobile-view');
+            const btnLaptop = document.getElementById('btn-laptop-view');
+            const btnMobile = document.getElementById('btn-mobile-view');
 
             if (mode === 'mobile') {
                 wrapper.className = 'mode-mobile bg-white flex flex-col justify-between shadow-2xl';
-                btnMob.className = 'px-3 py-1.5 rounded-lg font-bold flex items-center space-x-1.5 text-brand-red bg-slate-900 shadow-sm transition';
-                btnDesk.className = 'px-3 py-1.5 rounded-lg font-bold flex items-center space-x-1.5 text-slate-400 hover:text-white transition';
+                btnMobile.className = 'px-2.5 py-1 rounded-lg font-bold flex items-center space-x-1 text-brand-red bg-white shadow-sm transition';
+                btnLaptop.className = 'px-2.5 py-1 rounded-lg font-bold flex items-center space-x-1 text-slate-300 hover:text-white transition';
             } else {
-                wrapper.className = 'mode-desktop bg-white min-h-screen flex flex-col justify-between shadow-2xl';
-                btnDesk.className = 'px-3 py-1.5 rounded-lg font-bold flex items-center space-x-1.5 text-brand-red bg-slate-900 shadow-sm transition';
-                btnMob.className = 'px-3 py-1.5 rounded-lg font-bold flex items-center space-x-1.5 text-slate-400 hover:text-white transition';
+                wrapper.className = 'mode-laptop bg-white min-h-screen flex flex-col justify-between shadow-2xl';
+                btnLaptop.className = 'px-2.5 py-1 rounded-lg font-bold flex items-center space-x-1 text-brand-red bg-white shadow-sm transition';
+                btnMobile.className = 'px-2.5 py-1 rounded-lg font-bold flex items-center space-x-1 text-slate-300 hover:text-white transition';
             }
+        }
+
+        /* --- AUTHENTICATION FLOW --- */
+        function handleLoginSubmit(e) {
+            e.preventDefault();
+            document.getElementById('modal-2fa').classList.remove('hidden');
+        }
+
+        function verify2FAAndEnter() {
+            document.getElementById('modal-2fa').classList.add('hidden');
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('dashboard-app').classList.remove('hidden');
+            isAuthenticated = true;
+            router.navigate('overview');
+        }
+
+        function handleLogout() {
+            document.getElementById('dashboard-app').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+            isAuthenticated = false;
         }
 
         function toggleMobileSidebar() {
-            const sidebar = document.getElementById('sidebar-nav');
-            isMobileSidebarOpen = !isMobileSidebarOpen;
-            if (isMobileSidebarOpen) {
-                sidebar.classList.remove('hidden');
-                sidebar.classList.add('absolute', 'inset-y-0', 'left-0', 'z-50', 'w-72', 'shadow-2xl');
-                document.getElementById('mobile-menu-icon').className = 'fa-solid fa-xmark text-lg';
-            } else {
-                sidebar.classList.add('hidden');
-                sidebar.classList.remove('absolute', 'inset-y-0', 'left-0', 'z-50', 'w-72', 'shadow-2xl');
-                document.getElementById('mobile-menu-icon').className = 'fa-solid fa-bars text-lg';
-            }
+            const sidebar = document.getElementById('sidebar-menu');
+            sidebar.classList.toggle('hidden');
         }
 
+        /* --- CHANNEL FILTER --- */
         function setChannelFilter(channel) {
-            currentChannelFilter = channel;
-            ['All', 'Online', 'Shop'].forEach(c => {
-                const btn = document.getElementById(`channel-btn-${c}`);
-                if (btn) {
-                    if (c === channel) {
-                        btn.className = 'py-1.5 rounded-lg bg-brand-red text-white shadow transition';
-                    } else {
-                        btn.className = 'py-1.5 rounded-lg text-slate-400 hover:text-white transition';
-                    }
+            activeChannelFilter = channel;
+            ['all', 'online', 'physical'].forEach(ch => {
+                const btn = document.getElementById(`channel-${ch}`);
+                if (ch === channel) {
+                    btn.className = 'py-1 rounded-lg bg-brand-red text-white text-center shadow font-bold';
+                } else {
+                    btn.className = 'py-1 rounded-lg text-slate-400 hover:text-white text-center font-bold';
                 }
             });
-            adminRouter.render();
+            router.render();
         }
 
-        const adminRouter = {
+        /* --- SPA ROUTER SYSTEM --- */
+        const router = {
             navigate: function(route) {
                 currentRoute = route;
-                if (window.innerWidth < 768 && isMobileSidebarOpen) {
-                    toggleMobileSidebar();
-                }
-                document.querySelectorAll('nav button').forEach(btn => {
-                    btn.className = btn.className.replace('bg-brand-red text-white shadow-md', 'text-slate-400 hover:text-white hover:bg-slate-800');
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.className = 'nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white';
                 });
                 const activeNav = document.getElementById(`nav-${route}`);
                 if (activeNav) {
-                    activeNav.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-brand-red text-white shadow-md transition';
-                }
-                const screenTitle = document.getElementById('mobile-current-screen-title');
-                if (screenTitle) {
-                    screenTitle.innerText = route.replace('-', ' ').toUpperCase();
+                    activeNav.className = 'nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition bg-brand-red text-white';
                 }
                 this.render();
             },
             render: function() {
-                const main = document.getElementById('admin-main-content');
-                if (currentRoute === 'overview') main.innerHTML = renderOverviewScreen();
-                else if (currentRoute === 'purchases') main.innerHTML = renderPurchasesScreen();
-                else if (currentRoute === 'rates') main.innerHTML = renderRatesScreen();
-                else if (currentRoute === 'close-day') main.innerHTML = renderCloseDayScreen();
-                else if (currentRoute === 'suppliers') main.innerHTML = renderSuppliersScreen();
-                else if (currentRoute === 'orders') main.innerHTML = renderOrdersScreen();
-                else if (currentRoute === 'csv-upload') main.innerHTML = renderCsvUploadScreen();
+                const target = document.getElementById('view-target');
+                if (currentRoute === 'overview') target.innerHTML = renderOverviewView();
+                else if (currentRoute === 'purchases') target.innerHTML = renderPurchasesView();
+                else if (currentRoute === 'rates') target.innerHTML = renderRatesView();
+                else if (currentRoute === 'close-day') target.innerHTML = renderCloseDayView();
+                else if (currentRoute === 'suppliers') target.innerHTML = renderSuppliersView();
+                else if (currentRoute === 'orders') target.innerHTML = renderOrdersView();
             }
         };
 
-        function renderOverviewScreen() {
-            let filteredOrders = ordersData.filter(o => currentChannelFilter === 'All' || o.channel === currentChannelFilter);
+        /* --- VIEW COMPONENT RENDERERS (RESPONSIVE) --- */
+
+        function renderOverviewView() {
             return `
-                <div class="space-y-6">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                <div class="space-y-4 sm:space-y-6">
+                    <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between md:items-center gap-3">
                         <div>
-                            <h1 class="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight">Abdullah Meat Hub Overview</h1>
-                            <p class="text-xs text-slate-500 font-semibold">Channel Mode: <span class="text-brand-red font-bold">${currentChannelFilter}</span> | Today: 04 Nov 2026</p>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-brand-red">Operational Control</span>
+                            <h2 class="text-lg sm:text-2xl font-black text-slate-900 tracking-tight uppercase">Abdullah Meat Hub</h2>
+                            <p class="text-xs text-slate-500 font-medium">Real-time daily metrics & store status</p>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="adminRouter.navigate('purchases')" class="bg-brand-red text-white text-xs font-black px-4 py-2.5 rounded-xl shadow hover:bg-brand-redHover transition">+ Add Purchase</button>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl shadow-sm">
-                            <span class="text-[10px] font-black uppercase text-slate-400">Today's Total Sales</span>
-                            <h3 class="text-2xl font-black text-slate-900 mt-1">Rs. 234,500</h3>
-                            <span class="text-xs font-bold text-emerald-600 mt-2 block"><i class="fa-solid fa-arrow-trend-up"></i> +12.4% vs yesterday</span>
-                        </div>
-                        <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl shadow-sm">
-                            <span class="text-[10px] font-black uppercase text-slate-400">Active Purchases Today</span>
-                            <h3 class="text-2xl font-black text-brand-red mt-1">3 Entries</h3>
-                            <span class="text-xs font-bold text-slate-500 mt-2 block">Chicken, Beef & Mutton</span>
-                        </div>
-                        <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl shadow-sm">
-                            <span class="text-[10px] font-black uppercase text-slate-400">Total Supplier Payable</span>
-                            <h3 class="text-2xl font-black text-slate-900 mt-1">Rs. 228,800</h3>
-                            <span class="text-xs font-bold text-amber-600 mt-2 block"><i class="fa-solid fa-clock"></i> Due in 2 days</span>
-                        </div>
-                        <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl shadow-sm">
-                            <span class="text-[10px] font-black uppercase text-slate-400">Filtered Orders Count</span>
-                            <h3 class="text-2xl font-black text-slate-900 mt-1">${filteredOrders.length} Orders</h3>
-                            <span class="text-xs font-bold text-emerald-600 mt-2 block">Channel: ${currentChannelFilter}</span>
+                        <div class="bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2 text-xs font-bold text-slate-700 flex items-center gap-2 self-start md:self-auto">
+                            <i class="fa-regular fa-calendar-check text-brand-red"></i>
+                            <span>Date: <strong>Nov 04, 2026</strong></span>
                         </div>
                     </div>
 
-                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm">
-                        <h3 class="text-sm font-black uppercase tracking-wider text-slate-800 mb-4">Recent Orders (${currentChannelFilter} Channel)</h3>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs min-w-[600px]">
-                                <thead class="bg-slate-200 text-slate-700 font-bold uppercase text-[10px]">
+                    <!-- Metric Cards Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
+                            <div class="flex justify-between items-center text-slate-400 mb-2">
+                                <span class="text-xs font-black uppercase text-slate-500">Today Sales</span>
+                                <i class="fa-solid fa-cash-register text-brand-red text-base"></i>
+                            </div>
+                            <div class="text-lg sm:text-2xl font-black text-slate-900">Rs. 214,800</div>
+                            <div class="mt-2 text-[11px] font-bold text-emerald-600">+14.2% vs yesterday</div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
+                            <div class="flex justify-between items-center text-slate-400 mb-2">
+                                <span class="text-xs font-black uppercase text-slate-500">Purchases</span>
+                                <i class="fa-solid fa-truck-ramp-box text-brand-red text-base"></i>
+                            </div>
+                            <div class="text-lg sm:text-2xl font-black text-slate-900">Rs. 417,750</div>
+                            <div class="mt-2 text-[11px] font-bold text-slate-500">3 Entries Today</div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
+                            <div class="flex justify-between items-center text-slate-400 mb-2">
+                                <span class="text-xs font-black uppercase text-slate-500">Est. Profit</span>
+                                <i class="fa-solid fa-chart-line text-emerald-600 text-base"></i>
+                            </div>
+                            <div class="text-lg sm:text-2xl font-black text-emerald-600">Rs. 42,500</div>
+                            <div class="mt-2 text-[11px] font-bold text-emerald-700">Estimated</div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
+                            <div class="flex justify-between items-center text-slate-400 mb-2">
+                                <span class="text-xs font-black uppercase text-slate-500">Credit Owed</span>
+                                <i class="fa-solid fa-hand-holding-dollar text-red-500 text-base"></i>
+                            </div>
+                            <div class="text-lg sm:text-2xl font-black text-red-600">Rs. 310,000</div>
+                            <div class="mt-2 text-[11px] font-bold text-red-500">Pending Payables</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div onclick="router.navigate('purchases')" class="cursor-pointer bg-white p-4 rounded-3xl border border-slate-200 hover:border-brand-red transition group">
+                            <div class="w-8 h-8 rounded-2xl bg-red-50 text-brand-red flex items-center justify-center font-black mb-2 group-hover:bg-brand-red group-hover:text-white transition">
+                                <i class="fa-solid fa-plus text-xs"></i>
+                            </div>
+                            <h3 class="font-black text-slate-900 text-xs">Add Stock Purchase</h3>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Record Chicken, Beef or Mutton with flexible payments.</p>
+                        </div>
+
+                        <div onclick="router.navigate('rates')" class="cursor-pointer bg-white p-4 rounded-3xl border border-slate-200 hover:border-brand-red transition group">
+                            <div class="w-8 h-8 rounded-2xl bg-red-50 text-brand-red flex items-center justify-center font-black mb-2 group-hover:bg-brand-red group-hover:text-white transition">
+                                <i class="fa-solid fa-tags text-xs"></i>
+                            </div>
+                            <h3 class="font-black text-slate-900 text-xs">Update Selling Rates</h3>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Set individual daily rates per KG for all meat categories.</p>
+                        </div>
+
+                        <div onclick="router.navigate('close-day')" class="cursor-pointer bg-white p-4 rounded-3xl border border-slate-200 hover:border-brand-red transition group">
+                            <div class="w-8 h-8 rounded-2xl bg-red-50 text-brand-red flex items-center justify-center font-black mb-2 group-hover:bg-brand-red group-hover:text-white transition">
+                                <i class="fa-solid fa-lock text-xs"></i>
+                            </div>
+                            <h3 class="font-black text-slate-900 text-xs">Run Day End Close</h3>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Calculate stock left, chicken wastage & net profit/loss.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPurchasesView() {
+            return `
+                <div class="space-y-4 sm:space-y-6">
+                    <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                        <div>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-brand-red">Stock Management</span>
+                            <h2 class="text-lg sm:text-2xl font-black text-slate-900 uppercase">Daily Stock Purchases</h2>
+                            <p class="text-xs text-slate-500 font-medium">Record incoming stock for Chicken, Beef, and Mutton</p>
+                        </div>
+                        <button onclick="openCSVModal()" class="bg-amber-500 hover:bg-amber-600 text-white font-extrabold px-3.5 py-2 rounded-2xl text-xs transition shadow-sm flex items-center justify-center gap-2 self-start sm:self-auto">
+                            <i class="fa-solid fa-file-csv text-sm"></i>
+                            <span>Import CSV</span>
+                        </button>
+                    </div>
+
+                    <!-- New Purchase Form -->
+                    <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                        <h3 class="font-black text-xs text-brand-red uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-circle-plus"></i>
+                            <span>New Stock Entry Form</span>
+                        </h3>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-black uppercase text-slate-700 mb-1">Category</label>
+                                <select id="pur-category" onchange="togglePurchaseCategoryFields()" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red">
+                                    <option value="chicken">Chicken Category</option>
+                                    <option value="beef">Beef Category</option>
+                                    <option value="mutton">Mutton Category</option>
+                                </select>
+                            </div>
+
+                            <div id="field-birds-box">
+                                <label class="block text-[10px] font-black uppercase text-slate-700 mb-1">Total Birds</label>
+                                <input type="number" id="pur-birds" placeholder="e.g. 180" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red">
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-black uppercase text-slate-700 mb-1">Total Weight (KG)</label>
+                                <input type="number" id="pur-weight" placeholder="e.g. 260" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red">
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-black uppercase text-slate-700 mb-1">Rate/KG (Rs)</label>
+                                <input type="number" id="pur-rate" placeholder="e.g. 390" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                            <div>
+                                <label class="block text-[10px] font-black uppercase text-slate-700 mb-1">Supplier Name</label>
+                                <input type="text" id="pur-supplier" placeholder="e.g. Bismillah Farm" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red">
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-black uppercase text-slate-700 mb-1">Payment Status</label>
+                                <select id="pur-payment-type" onchange="handlePaymentStatusChange()" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red">
+                                    <option value="full">Full Payment Paid</option>
+                                    <option value="half">Half / Partial Paid</option>
+                                    <option value="credit">Full Credit (Zero Paid)</option>
+                                </select>
+                            </div>
+
+                            <div id="field-paid-box">
+                                <label class="block text-[10px] font-black uppercase text-slate-700 mb-1">Amount Paid Now (Rs)</label>
+                                <input type="number" id="pur-paid-amount" placeholder="Enter paid amount" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red">
+                            </div>
+                        </div>
+
+                        <button onclick="savePurchaseRecord()" class="w-full bg-brand-red hover:bg-brand-redHover text-white font-black py-3 rounded-2xl transition shadow-lg shadow-red-500/20 text-xs uppercase tracking-wider">
+                            Save Stock Purchase Entry
+                        </button>
+                    </div>
+
+                    <!-- Purchases Log Table with horizontal scroll wrapper -->
+                    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center">
+                            <h3 class="font-black text-xs text-slate-900 uppercase tracking-wider">Purchases Log</h3>
+                            <span class="text-xs font-bold text-slate-500">${purchasesData.length} Entries</span>
+                        </div>
+                        <div class="overflow-x-auto w-full">
+                            <table class="w-full text-left text-xs text-slate-800 whitespace-nowrap min-w-[600px]">
+                                <thead class="bg-slate-50 text-slate-500 uppercase font-black text-[10px] border-b border-slate-200">
                                     <tr>
-                                        <th class="p-3 rounded-l-lg">Order ID</th>
-                                        <th class="p-3">Customer</th>
-                                        <th class="p-3">Area</th>
-                                        <th class="p-3">Channel</th>
-                                        <th class="p-3">Total (Rs.)</th>
-                                        <th class="p-3 rounded-r-lg">Status</th>
+                                        <th class="p-3">Category</th>
+                                        <th class="p-3">Birds / Weight</th>
+                                        <th class="p-3">Rate/KG</th>
+                                        <th class="p-3">Total Bill</th>
+                                        <th class="p-3">Paid Now</th>
+                                        <th class="p-3">Remaining</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Supplier</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-200 font-semibold">
-                                    ${filteredOrders.map(o => `
-                                        <tr>
-                                            <td class="p-3 font-bold text-brand-red">${o.id}</td>
-                                            <td class="p-3">${o.customer}</td>
-                                            <td class="p-3">${o.area}</td>
-                                            <td class="p-3"><span class="bg-slate-200 px-2 py-0.5 rounded text-[10px]">${o.channel}</span></td>
-                                            <td class="p-3 font-bold">Rs. ${o.total.toLocaleString()}</td>
-                                            <td class="p-3"><span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[10px]">${o.status}</span></td>
+                                <tbody class="divide-y divide-slate-100 font-medium">
+                                    ${purchasesData.map(p => `
+                                        <tr class="hover:bg-slate-50 transition">
+                                            <td class="p-3 uppercase font-black text-slate-900">${p.category}</td>
+                                            <td class="p-3 font-bold">${p.category === 'chicken' ? p.birds + ' Birds (' + p.weight + 'kg)' : p.weight + 'kg'}</td>
+                                            <td class="p-3">Rs. ${p.rate}</td>
+                                            <td class="p-3 font-black text-slate-900">Rs. ${p.total.toLocaleString()}</td>
+                                            <td class="p-3 text-emerald-600 font-bold">Rs. ${p.paid.toLocaleString()}</td>
+                                            <td class="p-3 text-red-600 font-bold">Rs. ${p.remaining.toLocaleString()}</td>
+                                            <td class="p-3">
+                                                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${p.paymentType === 'full' ? 'bg-emerald-100 text-emerald-800' : p.paymentType === 'half' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}">
+                                                    ${p.paymentType}
+                                                </span>
+                                            </td>
+                                            <td class="p-3 text-slate-600 font-bold">${p.supplier}</td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -435,241 +673,248 @@
             `;
         }
 
-        function renderPurchasesScreen() {
+        function renderCloseDayView() {
             return `
-                <div class="space-y-6">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                <div class="space-y-4 sm:space-y-6">
+                    <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                         <div>
-                            <h1 class="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight">Daily Purchases Log</h1>
-                            <p class="text-xs text-slate-500 font-semibold">Chicken (with exact bird counts & KG), Beef, and Mutton purchases with Full/Half/Credit payments.</p>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-brand-red">End of Day Closing</span>
+                            <h2 class="text-lg sm:text-2xl font-black text-slate-900 uppercase">Day End Summary</h2>
+                            <p class="text-xs text-slate-500 font-medium">Stock left, revenue, profit/loss & chicken wastage</p>
                         </div>
-                        <button onclick="alert('Open New Purchase Modal')" class="bg-brand-red text-white text-xs font-black px-4 py-2.5 rounded-xl shadow hover:bg-brand-redHover transition">+ New Purchase Entry</button>
+
+                        <div class="flex items-center space-x-2 bg-slate-50 p-2 rounded-2xl border border-slate-200 self-start sm:self-auto">
+                            <i class="fa-regular fa-calendar-days text-brand-red text-xs"></i>
+                            <span class="text-[11px] font-black text-slate-700">Date:</span>
+                            <input type="date" value="2026-11-04" class="bg-white border border-slate-200 rounded-xl px-2 py-1 text-xs font-bold text-slate-800 focus:outline-none">
+                        </div>
                     </div>
 
-                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm overflow-x-auto">
-                        <table class="w-full text-left text-xs min-w-[750px]">
-                            <thead class="bg-slate-200 text-slate-700 font-bold uppercase text-[10px]">
-                                <tr>
-                                    <th class="p-3 rounded-l-lg">Date</th>
-                                    <th class="p-3">Supplier</th>
-                                    <th class="p-3">Category</th>
-                                    <th class="p-3">Birds / KG</th>
-                                    <th class="p-3">Rate / KG</th>
-                                    <th class="p-3">Total (Rs.)</th>
-                                    <th class="p-3">Payment Status</th>
-                                    <th class="p-3 rounded-r-lg">Remaining Due</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200 font-semibold">
-                                ${purchasesData.map(p => `
+                    <!-- Category Summaries -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+                                <h3 class="font-black text-xs text-slate-900 uppercase">Chicken Summary</h3>
+                                <span class="text-[9px] bg-red-100 text-brand-red font-black px-2 py-0.5 rounded-full uppercase">Wastage Active</span>
+                            </div>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between"><span class="text-slate-500">Stock Left:</span> <span class="font-black text-slate-900">22kg (Rs. 13,640)</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Sales Revenue:</span> <span class="font-black text-emerald-600">Rs. 92,400</span></div>
+                                <div class="flex justify-between border-t border-slate-100 pt-2 font-bold"><span class="text-slate-700">Wastage Amount:</span> <span class="font-black text-brand-red">14kg (Rs. 2,100)</span></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+                                <h3 class="font-black text-xs text-slate-900 uppercase">Beef Summary</h3>
+                                <span class="text-[9px] bg-slate-100 text-slate-600 font-black px-2 py-0.5 rounded-full uppercase">No Wastage</span>
+                            </div>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between"><span class="text-slate-500">Stock Left:</span> <span class="font-black text-slate-900">35kg (Rs. 38,500)</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Sales Revenue:</span> <span class="font-black text-emerald-600">Rs. 128,000</span></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+                                <h3 class="font-black text-xs text-slate-900 uppercase">Mutton Summary</h3>
+                                <span class="text-[9px] bg-slate-100 text-slate-600 font-black px-2 py-0.5 rounded-full uppercase">No Wastage</span>
+                            </div>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between"><span class="text-slate-500">Stock Left:</span> <span class="font-black text-slate-900">18kg (Rs. 44,100)</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Sales Revenue:</span> <span class="font-black text-emerald-600">Rs. 115,000</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Overall Net Balance Card -->
+                    <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                        <h3 class="font-black text-xs text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-3">Overall Net Balance</h3>
+
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 text-center">
+                            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                                <span class="text-[9px] font-black uppercase text-slate-500 block">Total Sales</span>
+                                <div class="text-sm sm:text-lg font-black text-emerald-600 mt-1">Rs. 335,400</div>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                                <span class="text-[9px] font-black uppercase text-slate-500 block">Total Cost</span>
+                                <div class="text-sm sm:text-lg font-black text-slate-900 mt-1">Rs. 417,750</div>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                                <span class="text-[9px] font-black uppercase text-slate-500 block">Closing Stock</span>
+                                <div class="text-sm sm:text-lg font-black text-amber-600 mt-1">Rs. 96,240</div>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                                <span class="text-[9px] font-black uppercase text-slate-500 block">Net Profit</span>
+                                <div class="text-sm sm:text-lg font-black text-emerald-600 mt-1">+Rs. 42,500</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSuppliersView() {
+            return `
+                <div class="space-y-4 sm:space-y-6">
+                    <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                        <div>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-brand-red">Credit Ledger</span>
+                            <h2 class="text-lg sm:text-2xl font-black text-slate-900 uppercase">Suppliers & Credit</h2>
+                            <p class="text-xs text-slate-500 font-medium">Track supplier payments, phone numbers & balances</p>
+                        </div>
+
+                        <div class="flex items-center space-x-2 bg-slate-50 p-2 rounded-2xl border border-slate-200 self-start sm:self-auto">
+                            <i class="fa-regular fa-calendar text-brand-red text-xs"></i>
+                            <span class="text-[11px] font-black text-slate-700">Filter:</span>
+                            <input type="date" value="2026-11-04" class="bg-white border border-slate-200 rounded-xl px-2 py-1 text-xs font-bold text-slate-800 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Suppliers Table with horizontal scroll wrapper -->
+                    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center">
+                            <h3 class="font-black text-xs text-slate-900 uppercase tracking-wider">Registered Suppliers</h3>
+                            <button onclick="alert('Add Supplier Modal')" class="bg-brand-red hover:bg-brand-redHover text-white font-black px-3 py-1.5 rounded-xl text-xs uppercase shadow-sm">
+                                + Add Supplier
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto w-full">
+                            <table class="w-full text-left text-xs text-slate-800 whitespace-nowrap min-w-[600px]">
+                                <thead class="bg-slate-50 text-slate-500 uppercase font-black text-[10px] border-b border-slate-200">
                                     <tr>
-                                        <td class="p-3 text-slate-500">${p.date}</td>
-                                        <td class="p-3 font-bold text-slate-900">${p.supplier}</td>
-                                        <td class="p-3 uppercase"><span class="bg-slate-200 px-2 py-0.5 rounded text-[10px]">${p.category}</span></td>
-                                        <td class="p-3">${p.category === 'chicken' ? p.birds + ' Birds / ' : ''}${p.kg} KG</td>
-                                        <td class="p-3">Rs. ${p.rate}</td>
-                                        <td class="p-3 font-bold text-slate-900">Rs. ${p.total.toLocaleString()}</td>
-                                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${p.paymentType==='Full'?'bg-emerald-100 text-emerald-800':p.paymentType==='Half'?'bg-amber-100 text-amber-800':'bg-red-100 text-red-800'}">${p.paymentType} Paid</span></td>
-                                        <td class="p-3 font-black text-brand-red">Rs. ${p.remaining.toLocaleString()}</td>
+                                        <th class="p-3">Supplier Name</th>
+                                        <th class="p-3">Phone</th>
+                                        <th class="p-3">Bought</th>
+                                        <th class="p-3">Paid</th>
+                                        <th class="p-3">Balance Owed</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Action</th>
                                     </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 font-medium">
+                                    ${suppliersData.map(s => `
+                                        <tr class="hover:bg-slate-50 transition">
+                                            <td class="p-3 font-black text-slate-900">${s.name}</td>
+                                            <td class="p-3 text-slate-600 font-bold">${s.phone}</td>
+                                            <td class="p-3 font-black text-slate-900">Rs. ${s.totalBought.toLocaleString()}</td>
+                                            <td class="p-3 text-emerald-600 font-bold">Rs. ${s.totalPaid.toLocaleString()}</td>
+                                            <td class="p-3 text-red-600 font-black">Rs. ${s.remainingBalance.toLocaleString()}</td>
+                                            <td class="p-3">
+                                                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${s.remainingBalance === 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                                    ${s.lastStatus}
+                                                </span>
+                                            </td>
+                                            <td class="p-3">
+                                                <button onclick="alert('WhatsApp statement sent to: ' + '${s.phone}')" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-black px-2 py-1 rounded-lg text-[10px] transition flex items-center gap-1">
+                                                    <i class="fa-brands fa-whatsapp text-xs"></i> WhatsApp
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             `;
         }
 
-        function renderRatesScreen() {
+        function renderOrdersView() {
             return `
-                <div class="space-y-6">
-                    <div class="border-b border-slate-200 pb-4">
-                        <h1 class="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight">Daily Selling Rates</h1>
-                        <p class="text-xs text-slate-500 font-semibold">Independent rate configurations for Chicken, Beef, and Mutton.</p>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
-                            <h3 class="text-sm font-black uppercase text-brand-red border-b border-slate-200 pb-2"><i class="fa-solid fa-drumstick-bite mr-2"></i> Chicken Rates</h3>
-                            ${Object.entries(ratesData.chicken).map(([k, v]) => `
-                                <div class="flex items-center justify-between">
-                                    <span class="text-xs uppercase font-bold text-slate-700">${k}</span>
-                                    <input type="number" value="${v}" class="w-24 bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red">
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
-                            <h3 class="text-sm font-black uppercase text-brand-red border-b border-slate-200 pb-2"><i class="fa-solid fa-cow mr-2"></i> Beef Rates</h3>
-                            ${Object.entries(ratesData.beef).map(([k, v]) => `
-                                <div class="flex items-center justify-between">
-                                    <span class="text-xs uppercase font-bold text-slate-700">${k}</span>
-                                    <input type="number" value="${v}" class="w-24 bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red">
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
-                            <h3 class="text-sm font-black uppercase text-brand-red border-b border-slate-200 pb-2"><i class="fa-solid fa-sheep mr-2"></i> Mutton Rates</h3>
-                            ${Object.entries(ratesData.mutton).map(([k, v]) => `
-                                <div class="flex items-center justify-between">
-                                    <span class="text-xs uppercase font-bold text-slate-700">${k}</span>
-                                    <input type="number" value="${v}" class="w-24 bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red">
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    <button onclick="alert('Rates published successfully to POS & Website!')" class="bg-brand-red hover:bg-brand-redHover text-white text-xs font-extrabold uppercase tracking-wider px-6 py-3.5 rounded-xl shadow-lg transition">Publish All Rates</button>
-                </div>
-            `;
-        }
-
-        function renderCloseDayScreen() {
-            return `
-                <div class="space-y-6">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                <div class="space-y-4 sm:space-y-6">
+                    <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm flex justify-between items-center">
                         <div>
-                            <h1 class="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight">Day End Summary & Calendar Reports</h1>
-                            <p class="text-xs text-slate-500 font-semibold">Individual stock remaining, sold amounts, profit/loss, and chicken daily wastage tracking.</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <input type="date" value="2026-11-04" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-700">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-brand-red">Website & Store</span>
+                            <h2 class="text-lg sm:text-2xl font-black text-slate-900 uppercase">Orders & Sales Log</h2>
+                            <p class="text-xs text-slate-500 font-medium">Manage Online COD Orders and Shop Scale Sales</p>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3">
-                            <h3 class="text-sm font-black uppercase text-brand-red border-b border-slate-200 pb-2">🐔 Chicken Financials</h3>
-                            <div class="flex justify-between text-xs font-semibold py-1 border-b border-slate-200"><span class="text-slate-500">Stock Remaining Value:</span><span class="font-bold text-slate-900">Rs. 18,500</span></div>
-                            <div class="flex justify-between text-xs font-semibold py-1 border-b border-slate-200"><span class="text-slate-500">Total Sold Revenue:</span><span class="font-bold text-emerald-600">Rs. 95,400</span></div>
-                            <div class="flex justify-between text-xs font-semibold py-1 border-b border-slate-200"><span class="text-slate-500">Estimated Profit:</span><span class="font-bold text-emerald-600">+Rs. 14,200</span></div>
-                            <div class="flex justify-between text-xs font-semibold py-1"><span class="text-red-600 font-bold">Daily Wastage Amount:</span><span class="font-bold text-red-600">Rs. 1,200 (2.5 KG)</span></div>
-                        </div>
-                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3">
-                            <h3 class="text-sm font-black uppercase text-brand-red border-b border-slate-200 pb-2">🐂 Beef Financials</h3>
-                            <div class="flex justify-between text-xs font-semibold py-1 border-b border-slate-200"><span class="text-slate-500">Stock Remaining Value:</span><span class="font-bold text-slate-900">Rs. 42,000</span></div>
-                            <div class="flex justify-between text-xs font-semibold py-1 border-b border-slate-200"><span class="text-slate-500">Total Sold Revenue:</span><span class="font-bold text-emerald-600">Rs. 110,500</span></div>
-                            <div class="flex justify-between text-xs font-semibold py-1 border-b border-slate-200"><span class="text-slate-500">Estimated Profit:</span><span class="font-bold text-emerald-600">+Rs. 18,900</span></div>
-                            <div class="flex justify-between text-xs font-semibold py-1"><span class="text-slate-400">Wastage Section:</span><span class="font-bold text-slate-400">Not Applicable</span></div>
-                        </div>
-                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3">
-                            <h3 class="text-sm font-black uppercase text-brand-red border-b border-slate-200 pb-2">🐐 Mutton Financials</h3>
-                            <div class="flex justify-between text-xs font-semibold py-1 border-b border-slate-200"><span class="text-slate-500">Stock Remaining Value:</span><span class="font-bold text-slate-900">Rs. 35,000</span></div>
-                            <div class="flex justify-between text-xs font-semibold py-1 border-b border-slate-200"><span class="text-slate-500">Total Sold Revenue:</span><span class="font-bold text-emerald-600">Rs. 88,600</span></div>
-                            <div class="flex justify-between text-xs font-semibold py-1 border-b border-slate-200"><span class="text-slate-500">Estimated Profit:</span><span class="font-bold text-emerald-600">+Rs. 15,400</span></div>
-                            <div class="flex justify-between text-xs font-semibold py-1"><span class="text-slate-400">Wastage Section:</span><span class="font-bold text-slate-400">Not Applicable</span></div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderSuppliersScreen() {
-            return `
-                <div class="space-y-6">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
-                        <div>
-                            <h1 class="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight">Suppliers & Credit Ledger</h1>
-                            <p class="text-xs text-slate-500 font-semibold">Track name, phone, full/half/credit payment breakdowns, and remaining balances with calendar filtering.</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <input type="date" value="2026-11-04" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-700">
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm overflow-x-auto">
-                        <table class="w-full text-left text-xs min-w-[700px]">
-                            <thead class="bg-slate-200 text-slate-700 font-bold uppercase text-[10px]">
-                                <tr>
-                                    <th class="p-3 rounded-l-lg">Supplier Name</th>
-                                    <th class="p-3">Phone</th>
-                                    <th class="p-3">Category</th>
-                                    <th class="p-3">Total Bought</th>
-                                    <th class="p-3">Total Paid</th>
-                                    <th class="p-3">Remaining Balance</th>
-                                    <th class="p-3 rounded-r-lg">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200 font-semibold">
-                                ${suppliersData.map(s => `
+                    <!-- Orders Table with horizontal scroll wrapper -->
+                    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto w-full">
+                            <table class="w-full text-left text-xs text-slate-800 whitespace-nowrap min-w-[600px]">
+                                <thead class="bg-slate-50 text-slate-500 uppercase font-black text-[10px] border-b border-slate-200">
                                     <tr>
-                                        <td class="p-3 font-bold text-slate-900">${s.name}</td>
-                                        <td class="p-3 text-slate-500">${s.phone}</td>
-                                        <td class="p-3 uppercase"><span class="bg-slate-200 px-2 py-0.5 rounded text-[10px]">${s.category}</span></td>
-                                        <td class="p-3">Rs. ${s.totalBought.toLocaleString()}</td>
-                                        <td class="p-3 text-emerald-600">Rs. ${s.totalPaid.toLocaleString()}</td>
-                                        <td class="p-3 font-black text-brand-red">Rs. ${s.remaining.toLocaleString()}</td>
-                                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.status==='Paid'?'bg-emerald-100 text-emerald-800':s.status==='Partial'?'bg-amber-100 text-amber-800':'bg-red-100 text-red-800'}">${s.status}</span></td>
+                                        <th class="p-3">Order ID</th>
+                                        <th class="p-3">Customer</th>
+                                        <th class="p-3">Channel</th>
+                                        <th class="p-3">Category</th>
+                                        <th class="p-3">Items</th>
+                                        <th class="p-3">Total</th>
+                                        <th class="p-3">Status</th>
                                     </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderOrdersScreen() {
-            let filteredOrders = ordersData.filter(o => currentChannelFilter === 'All' || o.channel === currentChannelFilter);
-            return `
-                <div class="space-y-6">
-                    <div class="border-b border-slate-200 pb-4">
-                        <h1 class="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight">Online & Physical Orders (${currentChannelFilter})</h1>
-                        <p class="text-xs text-slate-500 font-semibold">Live website orders vs store counter sales tracking.</p>
-                    </div>
-
-                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm overflow-x-auto">
-                        <table class="w-full text-left text-xs min-w-[600px]">
-                            <thead class="bg-slate-200 text-slate-700 font-bold uppercase text-[10px]">
-                                <tr>
-                                    <th class="p-3 rounded-l-lg">Order ID</th>
-                                    <th class="p-3">Customer</th>
-                                    <th class="p-3">Phone</th>
-                                    <th class="p-3">Channel</th>
-                                    <th class="p-3">Total (Rs.)</th>
-                                    <th class="p-3 rounded-r-lg">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200 font-semibold">
-                                ${filteredOrders.map(o => `
-                                    <tr>
-                                        <td class="p-3 font-bold text-brand-red">${o.id}</td>
-                                        <td class="p-3">${o.customer}</td>
-                                        <td class="p-3 text-slate-500">${o.phone}</td>
-                                        <td class="p-3"><span class="bg-slate-200 px-2 py-0.5 rounded text-[10px]">${o.channel}</span></td>
-                                        <td class="p-3 font-bold">Rs. ${o.total.toLocaleString()}</td>
-                                        <td class="p-3"><span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[10px]">${o.status}</span></td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderCsvUploadScreen() {
-            return `
-                <div class="space-y-6 max-w-2xl mx-auto">
-                    <div class="border-b border-slate-200 pb-4 text-center">
-                        <h1 class="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight">CSV Data Upload & Auto Parser</h1>
-                        <p class="text-xs text-slate-500 font-semibold">Upload purchase or sales CSV files to automatically populate Chicken, Beef, and Mutton databases.</p>
-                    </div>
-
-                    <div class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center space-y-4">
-                        <div class="w-16 h-16 bg-red-100 text-brand-red rounded-full flex items-center justify-center text-2xl mx-auto">
-                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 font-medium">
+                                    ${ordersData.map(o => `
+                                        <tr class="hover:bg-slate-50 transition">
+                                            <td class="p-3 font-black text-brand-red">${o.id}</td>
+                                            <td class="p-3 font-bold">${o.customer} <br><span class="text-[10px] text-slate-400">${o.phone}</span></td>
+                                            <td class="p-3">
+                                                <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${o.channel === 'online' ? 'bg-blue-100 text-blue-800' : 'bg-slate-200 text-slate-800'}">
+                                                    ${o.channel}
+                                                </span>
+                                            </td>
+                                            <td class="p-3 uppercase font-bold">${o.category}</td>
+                                            <td class="p-3 text-slate-600">${o.items}</td>
+                                            <td class="p-3 font-black text-slate-900">Rs. ${o.total.toLocaleString()}</td>
+                                            <td class="p-3">
+                                                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${o.status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                                    ${o.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
                         </div>
-                        <div>
-                            <h3 class="text-sm font-bold text-slate-800">Drag and drop your CSV file here</h3>
-                            <p class="text-xs text-slate-400 mt-1">Automatically maps data to respective Chicken, Beef, and Mutton sections</p>
-                        </div>
-                        <input type="file" id="csv-file-input" class="hidden" accept=".csv">
-                        <button onclick="document.getElementById('csv-file-input').click()" class="bg-brand-red hover:bg-brand-redHover text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-xl shadow transition">
-                            Browse CSV File
-                        </button>
                     </div>
                 </div>
             `;
         }
+
+        /* --- CSV IMPORT --- */
+        function openCSVModal() {
+            document.getElementById('modal-csv-upload').classList.remove('hidden');
+        }
+
+        function closeCSVModal() {
+            document.getElementById('modal-csv-upload').classList.add('hidden');
+            document.getElementById('csv-preview-box').classList.add('hidden');
+        }
+
+        function handleCSVFileSelected(event) {
+            const file = event.target.files[0];
+            if (file) {
+                document.getElementById('csv-preview-text').innerText = `File "${file.name}" parsed successfully!`;
+                document.getElementById('csv-preview-box').classList.remove('hidden');
+            }
+        }
+
+        function processCSVImport() {
+            const cat = document.getElementById('csv-target-category').value;
+            purchasesData.unshift({
+                id: 'p-csv-' + Date.now(),
+                date: '2026-11-04',
+                category: cat,
+                birds: cat === 'chicken' ? 120 : 0,
+                weight: 150,
+                rate: cat === 'chicken' ? 380 : cat === 'beef' ? 750 : 1600,
+                total: 57000,
+                paid: 57000,
+                remaining: 0,
+                paymentType: 'full',
+                supplier: 'CSV Imported Supplier'
+            });
+
+            closeCSVModal();
+            alert(`CSV imported successfully into ${cat.toUpperCase()} records!`);
+            router.navigate('purchases');
+        }
+
+        // INITIAL ROUTE SETUP
+        router.navigate('overview');
     </script>
 </body>
 </html>
