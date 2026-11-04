@@ -1,920 +1,1354 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abdullah Meat Hub — Admin Dashboard</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome 6 Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            red: '#dc2626',
-                            redHover: '#b91c1c',
-                            redLight: '#fef2f2',
-                            dark: '#0f172a',
-                            charcoal: '#1e293b',
-                            grayLight: '#f8fafc',
-                            border: '#e2e8f0'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #0f172a; overflow-x: hidden; }
-        
-        /* Device Viewport Frame Styles */
-        #viewport-wrapper {
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            margin: 0 auto;
-            width: 100%;
-        }
-        .mode-mobile {
-            max-width: 420px !important;
-            min-height: 840px;
-            border: 12px solid #0f172a;
-            border-top-width: 24px;
-            border-bottom-width: 28px;
-            border-radius: 40px;
-            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.3);
-            margin-top: 16px !important;
-            margin-bottom: 32px !important;
-            overflow-x: hidden;
-            position: relative;
-        }
-        .mode-mobile::before {
-            content: '';
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 110px;
-            height: 12px;
-            background-color: #0f172a;
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
-            z-index: 100;
-        }
-        .mode-laptop {
-            max-width: 100% !important;
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Abdullah Meat Hub — Admin</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        red: { 50:'#fef2f2',100:'#fee2e2',200:'#fecaca',300:'#fca5a5',400:'#f87171',500:'#ef4444',600:'#dc2626',700:'#b91c1c',800:'#991b1b',900:'#7f1d1d' }
+      },
+      fontFamily: { sans: ['Inter','sans-serif'] }
+    }
+  }
+}
+</script>
+<style>
+:root { --red:#dc2626; --red-h:#b91c1c; --dark:#0f172a; --charcoal:#1e293b; }
+*{box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:#f1f5f9;color:#0f172a;overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:#f8fafc;}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:2px;}
+::-webkit-scrollbar-thumb:hover{background:#dc2626;}
+.no-scrollbar::-webkit-scrollbar{display:none;}
+.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: #f8fafc; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #dc2626; }
+/* Viewport frame */
+#vp{transition:all .4s cubic-bezier(.16,1,.3,1);margin:0 auto;width:100%;}
+.vp-laptop{max-width:100%;border:none;border-radius:0;box-shadow:none;}
+.vp-mobile{
+  max-width:396px!important;min-height:860px;
+  border:12px solid #0f172a;border-top-width:28px;border-bottom-width:32px;
+  border-radius:44px;box-shadow:0 30px 70px -15px rgba(0,0,0,.35);
+  margin:16px auto 40px!important;
+  overflow:hidden!important;position:relative;
+}
+.vp-mobile::before{
+  content:'';position:absolute;top:-16px;left:50%;transform:translateX(-50%);
+  width:100px;height:16px;background:#0f172a;
+  border-bottom-left-radius:12px;border-bottom-right-radius:12px;z-index:100;
+}
+/* Prevent any child from overflowing the mobile frame */
+.vp-mobile *{max-width:100%;}
+.vp-mobile #dash{overflow-x:hidden;width:100%;}
+.vp-mobile main{min-width:0;overflow-x:hidden;}
 
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
+/* Badge animation */
+@keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:.4;}}
+.pulse{animation:pulse-dot 2s ease-in-out infinite;}
+
+/* Fade-in for views */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.fade-in{animation:fadeIn .25s ease;}
+
+/* Category tab active */
+.cat-tab.active{background:#dc2626;color:#fff;}
+.cat-tab{cursor:pointer;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:800;color:#64748b;transition:all .2s;}
+
+/* Status badges */
+.badge-green{background:#dcfce7;color:#15803d;}
+.badge-amber{background:#fef9c3;color:#a16207;}
+.badge-red{background:#fee2e2;color:#dc2626;}
+.badge-blue{background:#dbeafe;color:#1d4ed8;}
+.badge-slate{background:#e2e8f0;color:#475569;}
+
+/* Table row hover */
+tr.row:hover{background:#f8fafc;}
+
+/* Sidebar nav active */
+.nav-item.active{background:#dc2626;color:#fff!important;}
+.nav-item.active i{color:#fff!important;}
+
+/* Global mobile overflow guard */
+.vp-mobile #view > div,
+.vp-mobile .space-y-4,
+.vp-mobile .space-y-5,
+.vp-mobile .grid{min-width:0;width:100%;}
+.vp-mobile .grid > *{min-width:0;overflow:hidden;}
+.vp-mobile h2{word-break:break-word;overflow-wrap:break-word;hyphens:auto;}
+/* Ensure buttons in pageHeader don't force width expansion */
+.vp-mobile .shrink-0 button{white-space:nowrap;}
+</style>
 </head>
-<body class="bg-slate-100 text-slate-900 antialiased selection:bg-red-100 selection:text-red-900">
+<body class="bg-slate-100 antialiased">
 
-    <!-- TOP SYSTEM CONTROL BAR & DEVICE SWITCHER -->
-    <header class="bg-slate-900 text-white text-xs py-2 px-3 sm:px-4 sticky top-0 z-50 flex items-center justify-between border-b border-slate-800 shadow-md">
-        <div class="flex items-center space-x-2">
-            <span class="bg-brand-red text-white text-[9px] font-black uppercase px-2 py-0.5 rounded tracking-wider shadow-sm">
-                v2.5
-            </span>
-            <span class="font-extrabold text-slate-200 truncate max-w-[160px] sm:max-w-none">
-                <i class="fa-solid fa-drumstick-bite mr-1 text-red-500"></i> Abdullah Meat Hub
-            </span>
+<!-- ═══════════════════════════════════════════════
+     TOP CONTROL BAR
+═══════════════════════════════════════════════ -->
+<header id="top-bar" class="bg-slate-900 text-white text-xs py-2 px-3 sm:px-5 sticky top-0 z-50 flex items-center justify-between border-b border-slate-800 shadow-lg">
+  <div class="flex items-center gap-2">
+    <span class="bg-red-600 text-white text-[9px] font-black px-2 py-0.5 rounded tracking-widest">v2.5</span>
+    <span class="font-extrabold text-slate-200 text-[13px]"><i class="fa-solid fa-drumstick-bite mr-1 text-red-500"></i>Abdullah Meat Hub</span>
+  </div>
+  <!-- Device Switcher -->
+  <div class="flex items-center gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700">
+    <button onclick="setVP('laptop')" id="btn-laptop" class="px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 text-red-500 bg-white shadow-sm text-[10px] transition">
+      <i class="fa-solid fa-laptop"></i><span class="hidden sm:inline">Laptop</span>
+    </button>
+    <button onclick="setVP('mobile')" id="btn-mobile" class="px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 text-slate-400 hover:text-white text-[10px] transition">
+      <i class="fa-solid fa-mobile-screen-button"></i><span class="hidden sm:inline">Mobile</span>
+    </button>
+  </div>
+  <!-- Status chips -->
+  <div class="hidden lg:flex items-center gap-4 text-[11px] text-slate-300 font-medium">
+    <span class="flex items-center gap-1.5">
+      <span class="w-2 h-2 rounded-full bg-emerald-500 pulse"></span>
+      Scale Sync: <strong class="text-white ml-1">Active</strong>
+    </span>
+    <span class="text-slate-700">|</span>
+    <span class="text-amber-400 font-bold"><i class="fa-solid fa-calendar-day mr-1"></i>Nov 04, 2026</span>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════
+     VIEWPORT WRAPPER
+═══════════════════════════════════════════════ -->
+<div id="vp" class="vp-laptop bg-white min-h-screen shadow-2xl">
+
+  <!-- ───────────────────────────────────────────
+       1. AUTH SCREEN
+  ─────────────────────────────────────────── -->
+  <div id="auth-screen" class="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="w-full max-w-sm bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 relative z-10 space-y-6">
+      <div class="text-center space-y-2">
+        <div class="w-16 h-16 bg-red-600 text-white rounded-2xl flex items-center justify-center text-3xl font-black mx-auto shadow-lg shadow-red-500/30">A</div>
+        <h1 class="text-xl font-black tracking-tight text-slate-900 uppercase">Abdullah Meat Hub</h1>
+        <p class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">Management Dashboard</p>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-[10px] font-black uppercase text-slate-700 mb-1">Email Address</label>
+          <div class="relative">
+            <i class="fa-solid fa-envelope absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input id="inp-email" type="email" value="admin@abdullahmeathub.pk" class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-red-500 transition">
+          </div>
         </div>
-
-        <!-- Laptop / Mobile View Switcher -->
-        <div class="flex items-center space-x-1 bg-slate-800 p-1 rounded-xl border border-slate-700">
-            <button onclick="setViewportMode('laptop')" id="btn-laptop-view" class="px-2.5 py-1 rounded-lg font-bold flex items-center space-x-1 text-brand-red bg-white shadow-sm transition">
-                <i class="fa-solid fa-laptop text-[10px]"></i>
-                <span class="text-[10px] hidden sm:inline">Laptop</span>
-            </button>
-            <button onclick="setViewportMode('mobile')" id="btn-mobile-view" class="px-2.5 py-1 rounded-lg font-bold flex items-center space-x-1 text-slate-300 hover:text-white transition">
-                <i class="fa-solid fa-mobile-screen-button text-[10px]"></i>
-                <span class="text-[10px] hidden sm:inline">Mobile</span>
-            </button>
+        <div>
+          <label class="block text-[10px] font-black uppercase text-slate-700 mb-1">Password</label>
+          <div class="relative">
+            <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input id="inp-pass" type="password" value="admin123" class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-red-500 transition">
+          </div>
         </div>
-
-        <!-- Quick Status Indicators -->
-        <div class="hidden lg:flex items-center space-x-3 text-slate-300 font-medium text-[11px]">
-            <span class="flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>Scale Sync: <strong class="text-white">Active</strong></span>
-            </span>
-            <span class="text-slate-700">|</span>
-            <span class="text-amber-400 font-bold"><i class="fa-solid fa-calendar-day mr-1"></i> Nov 04, 2026</span>
+        <div class="flex items-center justify-between text-xs">
+          <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked class="rounded text-red-600"><span class="text-slate-600 font-medium">Remember me</span></label>
+          <a href="#" class="text-red-600 font-bold hover:underline">Forgot?</a>
         </div>
-    </header>
+        <button onclick="doLogin()" class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-3 rounded-xl shadow-lg shadow-red-500/20 transition text-xs uppercase tracking-wider flex items-center justify-center gap-2">
+          <span>Sign In to Portal</span><i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+      <div id="login-err" class="hidden text-center text-xs text-red-600 font-bold bg-red-50 rounded-xl p-2"></div>
+      <div class="border-t border-slate-100 pt-3 text-center">
+        <p class="text-[10px] text-slate-400 font-medium">Protected by 2FA Authenticator &amp; 256-Bit SSL</p>
+      </div>
+    </div>
+  </div>
 
-    <!-- VIEWPORT FRAME WRAPPER -->
-    <div id="viewport-wrapper" class="mode-laptop bg-white min-h-screen flex flex-col justify-between shadow-2xl">
+  <!-- 2FA MODAL -->
+  <div id="modal-2fa" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-xs bg-white rounded-3xl p-6 shadow-2xl space-y-5 text-center border border-slate-100">
+      <div class="w-12 h-12 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center text-xl mx-auto font-black"><i class="fa-solid fa-shield-halved"></i></div>
+      <div>
+        <h3 class="text-base font-black text-slate-900">2FA Security Code</h3>
+        <p class="text-xs text-slate-500 mt-1">Enter 6-digit code from your Authenticator App</p>
+      </div>
+      <input type="text" maxlength="6" id="inp-2fa" placeholder="123456" class="w-44 mx-auto block tracking-[0.4em] text-center font-black text-xl py-2.5 bg-slate-50 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-red-600">
+      <div id="fa-err" class="hidden text-xs text-red-600 font-bold"></div>
+      <button onclick="verify2FA()" class="w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 rounded-xl transition text-xs uppercase">Verify &amp; Enter</button>
+    </div>
+  </div>
 
-        <!-- 1. AUTHENTICATION LOGIN SCREEN FLOW -->
-        <div id="auth-screen" class="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
-            <div class="absolute -top-32 -left-32 w-80 h-80 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -bottom-32 -right-32 w-80 h-80 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
+  <!-- ───────────────────────────────────────────
+       2. MAIN DASHBOARD
+  ─────────────────────────────────────────── -->
+  <div id="dash" class="hidden min-h-screen flex flex-col md:flex-row bg-slate-50 overflow-x-hidden w-full">
 
-            <div class="w-full max-w-sm sm:max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 relative z-10 space-y-6">
-                <div class="text-center space-y-2">
-                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-brand-red text-white rounded-2xl flex items-center justify-center text-2xl sm:text-3xl font-black mx-auto shadow-lg shadow-red-500/30">
-                        A
-                    </div>
-                    <h1 class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 uppercase">Abdullah Meat Hub</h1>
-                    <p class="text-[11px] sm:text-xs text-slate-500 font-semibold uppercase tracking-wider">Management Dashboard Access</p>
-                </div>
-
-                <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-black uppercase text-slate-700 mb-1">Email Address</label>
-                        <div class="relative">
-                            <i class="fa-solid fa-envelope absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
-                            <input type="email" id="login-email" required value="admin@abdullahmeathub.pk" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red focus:bg-white transition">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-black uppercase text-slate-700 mb-1">Password</label>
-                        <div class="relative">
-                            <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
-                            <input type="password" id="login-password" required value="••••••••••••" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red focus:bg-white transition">
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between text-xs">
-                        <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" checked class="rounded text-brand-red focus:ring-brand-red">
-                            <span class="text-slate-600 font-medium">Remember me</span>
-                        </label>
-                        <a href="#" class="text-brand-red font-bold hover:underline">Forgot?</a>
-                    </div>
-
-                    <button type="submit" class="w-full bg-brand-red hover:bg-brand-redHover text-white font-black py-3.5 rounded-xl shadow-lg shadow-red-500/20 transition text-xs uppercase tracking-wider flex items-center justify-center space-x-2">
-                        <span>Sign In to Portal</span>
-                        <i class="fa-solid fa-arrow-right text-xs"></i>
-                    </button>
-                </form>
-
-                <div class="border-t border-slate-100 pt-4 text-center">
-                    <p class="text-[10px] text-slate-400 font-medium">Protected by 2FA Authenticator & 256-Bit SSL</p>
-                </div>
-            </div>
+    <!-- MOBILE TOP BAR -->
+    <div class="md:hidden bg-slate-900 text-white px-3 py-2.5 flex items-center justify-between sticky top-0 z-40 shadow-md">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded-lg bg-red-600 text-white flex items-center justify-center font-black text-xs">A</div>
+        <div>
+          <span class="font-black text-[11px] uppercase text-white block leading-tight">Abdullah Meat Hub</span>
+          <span class="text-[8px] text-red-400 font-extrabold uppercase tracking-widest">Admin Panel</span>
         </div>
-
-        <!-- 2FA CODE MODAL -->
-        <div id="modal-2fa" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-            <div class="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl space-y-5 text-center relative border border-slate-100">
-                <div class="w-12 h-12 bg-red-50 text-brand-red rounded-2xl flex items-center justify-center text-xl mx-auto font-black">
-                    <i class="fa-solid fa-shield-halal"></i>
-                </div>
-                <div>
-                    <h3 class="text-base sm:text-lg font-black text-slate-900">Enter 2FA Security Code</h3>
-                    <p class="text-xs text-slate-500 mt-1">Check your Authenticator App for 6-digit code</p>
-                </div>
-
-                <div class="flex justify-center">
-                    <input type="text" maxlength="6" id="2fa-input" placeholder="123456" class="w-44 tracking-[0.4em] text-center font-black text-xl py-2.5 bg-slate-50 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-red">
-                </div>
-
-                <button onclick="verify2FAAndEnter()" class="w-full bg-brand-red hover:bg-brand-redHover text-white font-extrabold py-3 rounded-xl transition text-xs uppercase shadow-md">
-                    Verify & Continue
-                </button>
-            </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="relative">
+          <button onclick="showAlert()" class="p-2 bg-slate-800 text-white rounded-xl hover:bg-slate-700 relative">
+            <i class="fa-solid fa-bell text-sm"></i>
+            <span class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 rounded-full text-[8px] font-black flex items-center justify-center">3</span>
+          </button>
         </div>
-
-        <!-- 2. MAIN ADMIN DASHBOARD SYSTEM -->
-        <div id="dashboard-app" class="hidden min-h-screen flex flex-col md:flex-row bg-slate-50 relative">
-
-            <!-- MOBILE TOP BAR HEADER -->
-            <div class="md:hidden bg-slate-900 text-white px-3 py-2.5 flex items-center justify-between sticky top-0 z-40 shadow-md">
-                <div class="flex items-center space-x-2">
-                    <div class="w-7 h-7 rounded-lg bg-brand-red text-white flex items-center justify-center font-black text-xs shadow">
-                        A
-                    </div>
-                    <div>
-                        <h2 class="font-black text-[11px] uppercase tracking-tight text-white leading-tight">Abdullah Meat Hub</h2>
-                        <span class="text-[8px] text-red-400 font-extrabold uppercase tracking-widest">Admin Panel</span>
-                    </div>
-                </div>
-
-                <div class="flex items-center space-x-2">
-                    <button onclick="toggleMobileSidebar()" class="p-2 bg-slate-800 text-white rounded-xl hover:bg-slate-700">
-                        <i class="fa-solid fa-bars text-sm"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- SIDEBAR NAVIGATION (RESPONSIVE DRAWER ON MOBILE) -->
-            <aside id="sidebar-menu" class="hidden md:flex flex-col w-64 bg-slate-900 text-white border-r border-slate-800 shrink-0 md:min-h-screen fixed md:static inset-y-0 left-0 z-50 transition-transform duration-300 shadow-2xl">
-                <!-- Mobile Drawer Header -->
-                <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
-                    <div class="flex items-center space-x-2.5">
-                        <div class="w-8 h-8 rounded-xl bg-brand-red text-white flex items-center justify-center font-black text-base shadow">
-                            A
-                        </div>
-                        <div>
-                            <h1 class="font-black text-xs tracking-tight text-white uppercase leading-none">Abdullah</h1>
-                            <span class="text-[9px] font-extrabold text-brand-red uppercase tracking-widest block mt-0.5">Meat Hub System</span>
-                        </div>
-                    </div>
-                    <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white p-2">
-                        <i class="fa-solid fa-xmark text-lg"></i>
-                    </button>
-                </div>
-
-                <!-- Channel Filter Toggle (Online vs Physical) -->
-                <div class="p-3 bg-slate-950/50 border-b border-slate-800">
-                    <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Sales Channel Filter</label>
-                    <div class="grid grid-cols-3 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-[10px] font-bold">
-                        <button onclick="setChannelFilter('all')" id="channel-all" class="py-1 rounded-lg bg-brand-red text-white text-center shadow">All</button>
-                        <button onclick="setChannelFilter('online')" id="channel-online" class="py-1 rounded-lg text-slate-400 hover:text-white text-center">Online</button>
-                        <button onclick="setChannelFilter('physical')" id="channel-physical" class="py-1 rounded-lg text-slate-400 hover:text-white text-center">Shop</button>
-                    </div>
-                </div>
-
-                <!-- Sidebar Nav Links -->
-                <nav class="p-3 space-y-1 text-xs font-bold flex-grow overflow-y-auto">
-                    <button onclick="router.navigate('overview'); toggleMobileSidebar();" id="nav-overview" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition bg-brand-red text-white">
-                        <i class="fa-solid fa-chart-pie w-5 text-center"></i> <span>Overview</span>
-                    </button>
-                    <button onclick="router.navigate('purchases'); toggleMobileSidebar();" id="nav-purchases" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
-                        <i class="fa-solid fa-truck-ramp-box w-5 text-center text-red-400"></i> <span>Daily Purchases</span>
-                    </button>
-                    <button onclick="router.navigate('rates'); toggleMobileSidebar();" id="nav-rates" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
-                        <i class="fa-solid fa-tags w-5 text-center text-red-400"></i> <span>Daily Rates</span>
-                    </button>
-                    <button onclick="router.navigate('close-day'); toggleMobileSidebar();" id="nav-close-day" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
-                        <i class="fa-solid fa-lock w-5 text-center text-red-400"></i> <span>Day End Summary</span>
-                    </button>
-                    <button onclick="router.navigate('suppliers'); toggleMobileSidebar();" id="nav-suppliers" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
-                        <i class="fa-solid fa-address-book w-5 text-center text-red-400"></i> <span>Suppliers & Credit</span>
-                    </button>
-                    <button onclick="router.navigate('orders'); toggleMobileSidebar();" id="nav-orders" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
-                        <i class="fa-solid fa-basket-shopping w-5 text-center text-red-400"></i> <span>Online Orders</span>
-                    </button>
-                    <button onclick="openCSVModal(); toggleMobileSidebar();" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-amber-400 hover:bg-slate-800 hover:text-amber-300 font-extrabold mt-4 border border-amber-500/20 bg-amber-500/5">
-                        <i class="fa-solid fa-file-csv w-5 text-center text-amber-400"></i> <span>CSV Data Upload</span>
-                    </button>
-                </nav>
-
-                <!-- User Profile & Logout -->
-                <div class="p-3.5 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
-                    <div class="flex items-center space-x-2.5">
-                        <div class="w-8 h-8 rounded-xl bg-slate-800 text-white font-black text-xs flex items-center justify-center border border-slate-700">
-                            AH
-                        </div>
-                        <div>
-                            <span class="block text-xs font-bold text-white leading-tight">Abdullah</span>
-                            <span class="block text-[9px] text-slate-400">Super Admin</span>
-                        </div>
-                    </div>
-                    <button onclick="handleLogout()" class="text-slate-400 hover:text-red-400 p-2">
-                        <i class="fa-solid fa-right-from-bracket text-sm"></i>
-                    </button>
-                </div>
-            </aside>
-
-            <!-- MAIN CONTENT DISPLAY AREA -->
-            <main class="flex-grow p-3 sm:p-5 lg:p-8 max-w-full overflow-x-hidden">
-                <div id="view-target" class="max-w-7xl mx-auto space-y-4 sm:space-y-6">
-                    <!-- RENDERED BY ROUTER JS -->
-                </div>
-            </main>
-        </div>
-
-        <!-- CSV FILE UPLOAD MODAL -->
-        <div id="modal-csv-upload" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-            <div class="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-5 border border-slate-200">
-                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-black text-xl">
-                            <i class="fa-solid fa-file-csv"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-base font-black text-slate-900">Upload CSV Data Sheet</h3>
-                            <p class="text-xs text-slate-500">Auto-parse entries into Purchases</p>
-                        </div>
-                    </div>
-                    <button onclick="closeCSVModal()" class="text-slate-400 hover:text-slate-600 p-2">
-                        <i class="fa-solid fa-xmark text-lg"></i>
-                    </button>
-                </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-black uppercase text-slate-700 mb-1">Select Import Target</label>
-                        <select id="csv-target-category" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-brand-red">
-                            <option value="chicken">Chicken Data Entries</option>
-                            <option value="beef">Beef Data Entries</option>
-                            <option value="mutton">Mutton Data Entries</option>
-                        </select>
-                    </div>
-
-                    <div class="border-2 border-dashed border-slate-300 rounded-2xl p-5 text-center hover:border-brand-red transition cursor-pointer bg-slate-50" onclick="document.getElementById('csv-file-input').click()">
-                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 mb-2"></i>
-                        <p class="text-xs font-bold text-slate-700">Click to upload CSV File</p>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Accepts .csv format containing entries</p>
-                        <input type="file" id="csv-file-input" accept=".csv" class="hidden" onchange="handleCSVFileSelected(event)">
-                    </div>
-
-                    <div id="csv-preview-box" class="hidden p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 font-medium">
-                        <i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i>
-                        <span id="csv-preview-text">CSV File Parsed Successfully!</span>
-                    </div>
-                </div>
-
-                <div class="flex space-x-3 pt-2">
-                    <button onclick="closeCSVModal()" class="w-1/2 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-xl text-xs uppercase">Cancel</button>
-                    <button onclick="processCSVImport()" class="w-1/2 py-3 bg-brand-red hover:bg-brand-redHover text-white font-extrabold rounded-xl text-xs uppercase shadow-md">Process</button>
-                </div>
-            </div>
-        </div>
-
+        <button onclick="toggleSidebar()" class="p-2 bg-slate-800 text-white rounded-xl hover:bg-slate-700">
+          <i class="fa-solid fa-bars text-sm"></i>
+        </button>
+      </div>
     </div>
 
-    <!-- JAVASCRIPT APPLICATION LOGIC -->
-    <script>
-        /* --- GLOBAL APPLICATION STATE --- */
-        let isAuthenticated = false;
-        let activeChannelFilter = 'all'; // 'all', 'online', 'physical'
-        let currentRoute = 'overview';
-        let activeRatesCategory = 'chicken';
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="hidden md:flex flex-col w-60 bg-slate-900 text-white shrink-0 md:min-h-screen fixed md:static inset-y-0 left-0 z-50 shadow-2xl transition-transform duration-300">
+      <!-- Header -->
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-red-600 text-white flex items-center justify-center font-black text-base shadow">A</div>
+          <div>
+            <h1 class="font-black text-xs text-white uppercase leading-none">Abdullah</h1>
+            <span class="text-[9px] font-extrabold text-red-400 uppercase tracking-widest block mt-0.5">Meat Hub System</span>
+          </div>
+        </div>
+        <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-white p-1.5"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
 
-        // Initial Dynamic Data Datasets
-        let purchasesData = [
-            { id: 'p-1', date: '2026-11-04', category: 'chicken', birds: 180, weight: 260, rate: 390, total: 101400, paid: 50000, remaining: 51400, paymentType: 'half', supplier: 'Bismillah Poultry Farm' },
-            { id: 'p-2', date: '2026-11-04', category: 'beef', birds: 0, weight: 210, rate: 760, total: 159600, paid: 159600, remaining: 0, paymentType: 'full', supplier: 'Karachi Cattle Farm' },
-            { id: 'p-3', date: '2026-11-04', category: 'mutton', birds: 0, weight: 95, rate: 1650, total: 156750, paid: 0, remaining: 156750, paymentType: 'credit', supplier: 'Al-Madina Livestock' }
-        ];
+      <!-- Channel Filter -->
+      <div class="p-3 bg-slate-950/40 border-b border-slate-800">
+        <label class="block text-[10px] font-black uppercase text-slate-400 mb-1.5">Sales Channel</label>
+        <div class="grid grid-cols-3 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
+          <button onclick="setChannel('all')" id="ch-all" class="py-1 rounded-lg bg-red-600 text-white text-[10px] font-black text-center shadow">All</button>
+          <button onclick="setChannel('online')" id="ch-online" class="py-1 rounded-lg text-slate-400 hover:text-white text-[10px] font-black text-center transition">Online</button>
+          <button onclick="setChannel('physical')" id="ch-physical" class="py-1 rounded-lg text-slate-400 hover:text-white text-[10px] font-black text-center transition">Shop</button>
+        </div>
+      </div>
 
-        let dailyRatesData = {
-            chicken: [
-                { id: 'c1', name: 'Fresh Chicken Whole Cut', rate: 620, yesterday: 610 },
-                { id: 'c2', name: 'Chicken Boneless Breast', rate: 880, yesterday: 870 },
-                { id: 'c3', name: 'Chicken Drumsticks', rate: 700, yesterday: 700 }
-            ],
-            beef: [
-                { id: 'b1', name: 'Prime Beef Bone-in Cut', rate: 1100, yesterday: 1080 },
-                { id: 'b2', name: 'Beef Undercut Boneless', rate: 1450, yesterday: 1400 }
-            ],
-            mutton: [
-                { id: 'm1', name: 'Desi Mutton Karahi Cut', rate: 2450, yesterday: 2400 },
-                { id: 'm2', name: 'Mutton Chops (Chaamp)', rate: 2650, yesterday: 2600 }
-            ]
-        };
+      <!-- Nav -->
+      <nav class="p-3 space-y-0.5 text-xs font-bold flex-grow overflow-y-auto no-scrollbar">
+        <button onclick="go('overview')" id="nav-overview" class="nav-item active w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-white">
+          <i class="fa-solid fa-chart-pie w-4 text-center text-white"></i><span>Overview</span>
+        </button>
+        <button onclick="go('purchases')" id="nav-purchases" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-truck-ramp-box w-4 text-center text-red-400"></i><span>Daily Purchases</span>
+        </button>
+        <button onclick="go('rates')" id="nav-rates" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-tags w-4 text-center text-red-400"></i><span>Daily Rates</span>
+        </button>
+        <button onclick="go('orders')" id="nav-orders" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-basket-shopping w-4 text-center text-red-400"></i><span>Orders</span>
+          <span class="ml-auto bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full">2</span>
+        </button>
+        <button onclick="go('shopSales')" id="nav-shopSales" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-scale-balanced w-4 text-center text-red-400"></i><span>Shop Sales</span>
+        </button>
+        <button onclick="go('closeDay')" id="nav-closeDay" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-lock w-4 text-center text-red-400"></i><span>Day End Summary</span>
+        </button>
+        <button onclick="go('suppliers')" id="nav-suppliers" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-address-book w-4 text-center text-red-400"></i><span>Suppliers &amp; Credit</span>
+        </button>
+        <button onclick="go('wastage')" id="nav-wastage" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-trash-can w-4 text-center text-red-400"></i><span>Chicken Wastage</span>
+        </button>
+        <button onclick="go('stock')" id="nav-stock" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-boxes-stacked w-4 text-center text-red-400"></i><span>Stock</span>
+        </button>
+        <button onclick="go('reports')" id="nav-reports" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-chart-bar w-4 text-center text-red-400"></i><span>Reports</span>
+        </button>
+        <button onclick="openCSV()" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-amber-400 hover:bg-slate-800 hover:text-amber-300 font-extrabold mt-3 border border-amber-500/20 bg-amber-500/5 transition">
+          <i class="fa-solid fa-file-csv w-4 text-center text-amber-400"></i><span>CSV Upload</span>
+        </button>
+      </nav>
 
-        let suppliersData = [
-            { name: 'Bismillah Poultry Farm', phone: '0300-1234567', totalBought: 280000, totalPaid: 180000, remainingBalance: 100000, lastStatus: 'Half Paid' },
-            { name: 'Karachi Cattle Farm', phone: '0312-9876543', totalBought: 450000, totalPaid: 450000, remainingBalance: 0, lastStatus: 'Full Paid' },
-            { name: 'Al-Madina Livestock', phone: '0333-4567890', totalBought: 310000, totalPaid: 100000, remainingBalance: 210000, lastStatus: 'Full Credit' }
-        ];
+      <!-- User & Logout -->
+      <div class="p-3.5 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-slate-800 text-white font-black text-xs flex items-center justify-center border border-slate-700">AH</div>
+          <div>
+            <span class="block text-xs font-bold text-white leading-tight">Abdullah</span>
+            <span class="block text-[9px] text-slate-400">Super Admin</span>
+          </div>
+        </div>
+        <button onclick="doLogout()" class="text-slate-400 hover:text-red-400 p-2 transition"><i class="fa-solid fa-right-from-bracket text-sm"></i></button>
+      </div>
+    </aside>
 
-        let ordersData = [
-            { id: 'ORD-9021', customer: 'Zainab Ahmed', phone: '0321-4455667', channel: 'online', category: 'Chicken', items: '2 kg Chicken Boneless', total: 1760, status: 'New', time: '10:30 AM' },
-            { id: 'ORD-9022', customer: 'Tariq Mehmood', phone: '0300-9988776', channel: 'online', category: 'Beef', items: '3 kg Beef Bone-in', total: 3300, status: 'Confirmed', time: '11:15 AM' },
-            { id: 'ORD-9023', customer: 'Walk-in Shop Sale', phone: 'N/A', channel: 'physical', category: 'Mutton', items: '1.5 kg Mutton Karahi', total: 3675, status: 'Delivered', time: '11:45 AM' }
-        ];
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow min-w-0 p-3 sm:p-5 lg:p-7 overflow-x-hidden w-full">
+      <div id="view" class="w-full max-w-7xl mx-auto space-y-4 sm:space-y-5 fade-in"></div>
+    </main>
+  </div>
 
-        /* --- DEVICE SWITCHER TOGGLE --- */
-        function setViewportMode(mode) {
-            const wrapper = document.getElementById('viewport-wrapper');
-            const btnLaptop = document.getElementById('btn-laptop-view');
-            const btnMobile = document.getElementById('btn-mobile-view');
+  <!-- CSV MODAL -->
+  <div id="modal-csv" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-5 border border-slate-200">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl"><i class="fa-solid fa-file-csv"></i></div>
+          <div><h3 class="text-sm font-black text-slate-900">Upload CSV Data</h3><p class="text-xs text-slate-500">Auto-import entries into Purchases</p></div>
+        </div>
+        <button onclick="closeCSV()" class="text-slate-400 hover:text-slate-700 p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div>
+        <label class="block text-[10px] font-black uppercase text-slate-700 mb-1">Import Target</label>
+        <select id="csv-cat" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold focus:outline-none focus:border-red-500">
+          <option value="chicken">Chicken</option>
+          <option value="beef">Beef</option>
+          <option value="mutton">Mutton</option>
+        </select>
+      </div>
+      <div class="border-2 border-dashed border-slate-300 rounded-2xl p-6 text-center hover:border-red-500 transition cursor-pointer bg-slate-50" onclick="document.getElementById('csv-file').click()">
+        <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 mb-2"></i>
+        <p class="text-xs font-bold text-slate-700">Click to upload CSV</p>
+        <p class="text-[11px] text-slate-400 mt-0.5">.csv format</p>
+        <input type="file" id="csv-file" accept=".csv" class="hidden" onchange="csvSelected(event)">
+      </div>
+      <div id="csv-ok" class="hidden p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 font-medium">
+        <i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i><span id="csv-ok-txt"></span>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="closeCSV()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-xl text-xs uppercase transition">Cancel</button>
+        <button onclick="processCSV()" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-extrabold rounded-xl text-xs uppercase shadow-md transition">Process Import</button>
+      </div>
+    </div>
+  </div>
 
-            if (mode === 'mobile') {
-                wrapper.className = 'mode-mobile bg-white flex flex-col justify-between shadow-2xl';
-                btnMobile.className = 'px-2.5 py-1 rounded-lg font-bold flex items-center space-x-1 text-brand-red bg-white shadow-sm transition';
-                btnLaptop.className = 'px-2.5 py-1 rounded-lg font-bold flex items-center space-x-1 text-slate-300 hover:text-white transition';
-            } else {
-                wrapper.className = 'mode-laptop bg-white min-h-screen flex flex-col justify-between shadow-2xl';
-                btnLaptop.className = 'px-2.5 py-1 rounded-lg font-bold flex items-center space-x-1 text-brand-red bg-white shadow-sm transition';
-                btnMobile.className = 'px-2.5 py-1 rounded-lg font-bold flex items-center space-x-1 text-slate-300 hover:text-white transition';
-            }
-        }
+  <!-- ADD SUPPLIER MODAL -->
+  <div id="modal-supplier" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-slate-200">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="text-sm font-black text-slate-900">Add Supplier</h3>
+        <button onclick="closeSupplierModal()" class="text-slate-400 hover:text-slate-700 p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="col-span-2"><label class="lbl">Supplier Name</label><input id="sup-name" type="text" placeholder="e.g. Bismillah Farm" class="inp"></div>
+        <div><label class="lbl">Phone</label><input id="sup-phone" type="text" placeholder="0300-XXXXXXX" class="inp"></div>
+        <div>
+          <label class="lbl">Category Supplied</label>
+          <select id="sup-cat" class="inp">
+            <option>Chicken</option><option>Beef</option><option>Mutton</option><option>All</option>
+          </select>
+        </div>
+        <div class="col-span-2"><label class="lbl">Opening Balance (Rs)</label><input id="sup-opening" type="number" placeholder="0" class="inp"></div>
+        <div class="col-span-2"><label class="lbl">Notes</label><input id="sup-notes" type="text" placeholder="Optional notes" class="inp"></div>
+      </div>
+      <div class="flex gap-3 pt-1">
+        <button onclick="closeSupplierModal()" class="flex-1 py-3 bg-slate-100 text-slate-700 font-extrabold rounded-xl text-xs uppercase transition hover:bg-slate-200">Cancel</button>
+        <button onclick="addSupplier()" class="flex-1 py-3 bg-red-600 text-white font-extrabold rounded-xl text-xs uppercase shadow-md transition hover:bg-red-700">Save Supplier</button>
+      </div>
+    </div>
+  </div>
 
-        /* --- AUTHENTICATION FLOW --- */
-        function handleLoginSubmit(e) {
-            e.preventDefault();
-            document.getElementById('modal-2fa').classList.remove('hidden');
-        }
+  <!-- ADD PAYMENT MODAL -->
+  <div id="modal-payment" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-slate-200">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="text-sm font-black text-slate-900">Record Payment</h3>
+        <button onclick="closePaymentModal()" class="text-slate-400 hover:text-slate-700 p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div id="pay-supplier-name" class="text-xs font-black text-red-600 uppercase tracking-wider"></div>
+      <div class="space-y-3">
+        <div><label class="lbl">Amount Paid (Rs)</label><input id="pay-amount" type="number" placeholder="Enter amount" class="inp"></div>
+        <div>
+          <label class="lbl">Method</label>
+          <select id="pay-method" class="inp">
+            <option>Cash</option><option>Bank Transfer</option><option>JazzCash</option><option>Easypaisa</option>
+          </select>
+        </div>
+        <div><label class="lbl">Reference / Note</label><input id="pay-ref" type="text" placeholder="Optional" class="inp"></div>
+      </div>
+      <div class="flex gap-3 pt-1">
+        <button onclick="closePaymentModal()" class="flex-1 py-3 bg-slate-100 text-slate-700 font-extrabold rounded-xl text-xs uppercase transition hover:bg-slate-200">Cancel</button>
+        <button onclick="savePayment()" class="flex-1 py-3 bg-red-600 text-white font-extrabold rounded-xl text-xs uppercase shadow-md transition hover:bg-red-700">Save Payment</button>
+      </div>
+    </div>
+  </div>
 
-        function verify2FAAndEnter() {
-            document.getElementById('modal-2fa').classList.add('hidden');
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('dashboard-app').classList.remove('hidden');
-            isAuthenticated = true;
-            router.navigate('overview');
-        }
+  <!-- SIDEBAR BACKDROP (mobile only) -->
+  <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden md:hidden"></div>
 
-        function handleLogout() {
-            document.getElementById('dashboard-app').classList.add('hidden');
-            document.getElementById('auth-screen').classList.remove('hidden');
-            isAuthenticated = false;
-        }
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-5 right-5 z-[300] hidden">
+    <div class="bg-slate-900 text-white px-4 py-3 rounded-2xl text-xs font-bold shadow-2xl flex items-center gap-2 max-w-xs">
+      <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+      <span id="toast-msg"></span>
+    </div>
+  </div>
 
-        function toggleMobileSidebar() {
-            const sidebar = document.getElementById('sidebar-menu');
-            sidebar.classList.toggle('hidden');
-        }
+</div><!-- /viewport -->
 
-        /* --- CHANNEL FILTER --- */
-        function setChannelFilter(channel) {
-            activeChannelFilter = channel;
-            ['all', 'online', 'physical'].forEach(ch => {
-                const btn = document.getElementById(`channel-${ch}`);
-                if (ch === channel) {
-                    btn.className = 'py-1 rounded-lg bg-brand-red text-white text-center shadow font-bold';
-                } else {
-                    btn.className = 'py-1 rounded-lg text-slate-400 hover:text-white text-center font-bold';
-                }
-            });
-            router.render();
-        }
+<!-- ═══════════════════════════════════════════════
+     SHARED TAILWIND UTILITY CLASSES (injected via style)
+═══════════════════════════════════════════════ -->
+<style>
+.lbl{display:block;font-size:10px;font-weight:800;text-transform:uppercase;color:#374151;margin-bottom:4px;letter-spacing:.05em;}
+.inp{width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:9px 12px;font-size:12px;font-weight:700;color:#0f172a;outline:none;transition:border .2s;}
+.inp:focus{border-color:#dc2626;background:#fff;}
+.card{background:#fff;border-radius:24px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.04);width:100%;min-width:0;overflow:hidden;}
+.section-header{padding:14px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.metric-card{background:#fff;border-radius:20px;border:1px solid #e2e8f0;padding:14px 16px;box-shadow:0 1px 2px rgba(0,0,0,.03);min-width:0;overflow:hidden;}
+.btn-red{background:#dc2626;color:#fff;font-weight:800;padding:8px 16px;border-radius:12px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;transition:background .2s;border:none;}
+.btn-red:hover{background:#b91c1c;}
+.btn-slate{background:#f1f5f9;color:#374151;font-weight:800;padding:8px 16px;border-radius:12px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;transition:background .2s;border:none;}
+.btn-slate:hover{background:#e2e8f0;}
+</style>
 
-        /* --- SPA ROUTER SYSTEM --- */
-        const router = {
-            navigate: function(route) {
-                currentRoute = route;
-                document.querySelectorAll('.nav-btn').forEach(btn => {
-                    btn.className = 'nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:bg-slate-800 hover:text-white';
-                });
-                const activeNav = document.getElementById(`nav-${route}`);
-                if (activeNav) {
-                    activeNav.className = 'nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition bg-brand-red text-white';
-                }
-                this.render();
-            },
-            render: function() {
-                const target = document.getElementById('view-target');
-                if (currentRoute === 'overview') target.innerHTML = renderOverviewView();
-                else if (currentRoute === 'purchases') target.innerHTML = renderPurchasesView();
-                else if (currentRoute === 'rates') target.innerHTML = renderRatesView();
-                else if (currentRoute === 'close-day') target.innerHTML = renderCloseDayView();
-                else if (currentRoute === 'suppliers') target.innerHTML = renderSuppliersView();
-                else if (currentRoute === 'orders') target.innerHTML = renderOrdersView();
-            }
-        };
+<!-- ═══════════════════════════════════════════════
+     APPLICATION STATE & LOGIC
+═══════════════════════════════════════════════ -->
+<script>
+/* ─── STATE ─── */
+let route = 'overview';
+let channel = 'all';
+let payingSupplierIdx = null;
 
-        /* --- VIEW COMPONENT RENDERERS (RESPONSIVE) --- */
+let purchases = [
+  { id:'p1', date:'2026-11-04', cat:'chicken', birds:180, weight:260, rate:390, total:101400, paid:50000, rem:51400, type:'half', supplier:'Bismillah Poultry Farm' },
+  { id:'p2', date:'2026-11-04', cat:'beef',    birds:0,   weight:210, rate:760, total:159600, paid:159600, rem:0,     type:'full', supplier:'Karachi Cattle Farm' },
+  { id:'p3', date:'2026-11-04', cat:'mutton',  birds:0,   weight:95,  rate:1650,total:156750, paid:0,     rem:156750,type:'credit',supplier:'Al-Madina Livestock' }
+];
 
-        function renderOverviewView() {
-            return `
-                <div class="space-y-4 sm:space-y-6">
-                    <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between md:items-center gap-3">
-                        <div>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-brand-red">Operational Control</span>
-                            <h2 class="text-lg sm:text-2xl font-black text-slate-900 tracking-tight uppercase">Abdullah Meat Hub</h2>
-                            <p class="text-xs text-slate-500 font-medium">Real-time daily metrics & store status</p>
-                        </div>
-                        <div class="bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2 text-xs font-bold text-slate-700 flex items-center gap-2 self-start md:self-auto">
-                            <i class="fa-regular fa-calendar-check text-brand-red"></i>
-                            <span>Date: <strong>Nov 04, 2026</strong></span>
-                        </div>
-                    </div>
+let rates = {
+  chicken:[
+    { id:'c1', name:'Fresh Chicken Whole Cut', rate:620, prev:610 },
+    { id:'c2', name:'Chicken Boneless Breast', rate:880, prev:870 },
+    { id:'c3', name:'Chicken Drumsticks',      rate:700, prev:700 }
+  ],
+  beef:[
+    { id:'b1', name:'Prime Beef Bone-in Cut',   rate:1100, prev:1080 },
+    { id:'b2', name:'Beef Undercut Boneless',    rate:1450, prev:1400 }
+  ],
+  mutton:[
+    { id:'m1', name:'Desi Mutton Karahi Cut',   rate:2450, prev:2400 },
+    { id:'m2', name:'Mutton Chops (Chaamp)',     rate:2650, prev:2600 }
+  ]
+};
 
-                    <!-- Metric Cards Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                        <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
-                            <div class="flex justify-between items-center text-slate-400 mb-2">
-                                <span class="text-xs font-black uppercase text-slate-500">Today Sales</span>
-                                <i class="fa-solid fa-cash-register text-brand-red text-base"></i>
-                            </div>
-                            <div class="text-lg sm:text-2xl font-black text-slate-900">Rs. 214,800</div>
-                            <div class="mt-2 text-[11px] font-bold text-emerald-600">+14.2% vs yesterday</div>
-                        </div>
+let suppliers = [
+  { name:'Bismillah Poultry Farm', phone:'0300-1234567', bought:280000, paid:180000, bal:100000, status:'Partial', category:'Chicken' },
+  { name:'Karachi Cattle Farm',    phone:'0312-9876543', bought:450000, paid:450000, bal:0,      status:'Paid',    category:'Beef'    },
+  { name:'Al-Madina Livestock',    phone:'0333-4567890', bought:310000, paid:100000, bal:210000, status:'Credit',  category:'Mutton'  }
+];
 
-                        <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
-                            <div class="flex justify-between items-center text-slate-400 mb-2">
-                                <span class="text-xs font-black uppercase text-slate-500">Purchases</span>
-                                <i class="fa-solid fa-truck-ramp-box text-brand-red text-base"></i>
-                            </div>
-                            <div class="text-lg sm:text-2xl font-black text-slate-900">Rs. 417,750</div>
-                            <div class="mt-2 text-[11px] font-bold text-slate-500">3 Entries Today</div>
-                        </div>
+let orders = [
+  { id:'ORD-9021', cust:'Zainab Ahmed',    phone:'0321-4455667', channel:'online',   cat:'Chicken', items:'2 kg Boneless Breast',  total:1760, status:'New',       time:'10:30 AM' },
+  { id:'ORD-9022', cust:'Tariq Mehmood',   phone:'0300-9988776', channel:'online',   cat:'Beef',    items:'3 kg Beef Bone-in',      total:3300, status:'Confirmed', time:'11:15 AM' },
+  { id:'ORD-9023', cust:'Walk-in Shop',    phone:'N/A',          channel:'physical', cat:'Mutton',  items:'1.5 kg Mutton Karahi',   total:3675, status:'Delivered', time:'11:45 AM' }
+];
 
-                        <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
-                            <div class="flex justify-between items-center text-slate-400 mb-2">
-                                <span class="text-xs font-black uppercase text-slate-500">Est. Profit</span>
-                                <i class="fa-solid fa-chart-line text-emerald-600 text-base"></i>
-                            </div>
-                            <div class="text-lg sm:text-2xl font-black text-emerald-600">Rs. 42,500</div>
-                            <div class="mt-2 text-[11px] font-bold text-emerald-700">Estimated</div>
-                        </div>
+let wastage = [
+  { id:'w1', date:'2026-11-04', weight:14, rate:150, amount:2100, buyer:'N/A', payment:'paid' }
+];
 
-                        <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
-                            <div class="flex justify-between items-center text-slate-400 mb-2">
-                                <span class="text-xs font-black uppercase text-slate-500">Credit Owed</span>
-                                <i class="fa-solid fa-hand-holding-dollar text-red-500 text-base"></i>
-                            </div>
-                            <div class="text-lg sm:text-2xl font-black text-red-600">Rs. 310,000</div>
-                            <div class="mt-2 text-[11px] font-bold text-red-500">Pending Payables</div>
-                        </div>
-                    </div>
+let shopSales = [
+  { time:'9:15 AM',  item:'Fresh Chicken Whole Cut', plu:1, weight:2.5,  rate:620, amount:1550, salesmanId:'S001', channel:'physical', source:'Scale' },
+  { time:'10:00 AM', item:'Beef Bone-in Cut',         plu:4, weight:1.0,  rate:1100,amount:1100, salesmanId:'S001', channel:'physical', source:'Scale' },
+  { time:'11:30 AM', item:'Chicken Boneless Breast',  plu:2, weight:1.5,  rate:880, amount:1320, salesmanId:'ONL1', channel:'online',   source:'Scale' }
+];
 
-                    <!-- Quick Actions -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div onclick="router.navigate('purchases')" class="cursor-pointer bg-white p-4 rounded-3xl border border-slate-200 hover:border-brand-red transition group">
-                            <div class="w-8 h-8 rounded-2xl bg-red-50 text-brand-red flex items-center justify-center font-black mb-2 group-hover:bg-brand-red group-hover:text-white transition">
-                                <i class="fa-solid fa-plus text-xs"></i>
-                            </div>
-                            <h3 class="font-black text-slate-900 text-xs">Add Stock Purchase</h3>
-                            <p class="text-[11px] text-slate-500 mt-0.5">Record Chicken, Beef or Mutton with flexible payments.</p>
-                        </div>
+let activeRatesCat = 'chicken';
 
-                        <div onclick="router.navigate('rates')" class="cursor-pointer bg-white p-4 rounded-3xl border border-slate-200 hover:border-brand-red transition group">
-                            <div class="w-8 h-8 rounded-2xl bg-red-50 text-brand-red flex items-center justify-center font-black mb-2 group-hover:bg-brand-red group-hover:text-white transition">
-                                <i class="fa-solid fa-tags text-xs"></i>
-                            </div>
-                            <h3 class="font-black text-slate-900 text-xs">Update Selling Rates</h3>
-                            <p class="text-[11px] text-slate-500 mt-0.5">Set individual daily rates per KG for all meat categories.</p>
-                        </div>
+/* ─── AUTH ─── */
+function doLogin(){
+  const e = document.getElementById('inp-email').value;
+  const p = document.getElementById('inp-pass').value;
+  const err = document.getElementById('login-err');
+  if(!e || !p){ showLoginErr('Please enter email and password'); return; }
+  err.classList.add('hidden');
+  document.getElementById('modal-2fa').classList.remove('hidden');
+  document.getElementById('inp-2fa').value='';
+  document.getElementById('fa-err').classList.add('hidden');
+}
+function showLoginErr(msg){ const el=document.getElementById('login-err'); el.textContent=msg; el.classList.remove('hidden'); }
+function verify2FA(){
+  const code = document.getElementById('inp-2fa').value.trim();
+  const err = document.getElementById('fa-err');
+  if(code.length < 4){ err.textContent='Enter a valid code'; err.classList.remove('hidden'); return; }
+  document.getElementById('modal-2fa').classList.add('hidden');
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('dash').classList.remove('hidden');
+  go('overview');
+}
+function doLogout(){
+  document.getElementById('dash').classList.add('hidden');
+  document.getElementById('auth-screen').classList.remove('hidden');
+}
+document.getElementById('inp-pass')?.addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+document.getElementById('inp-2fa')?.addEventListener('keydown', e=>{ if(e.key==='Enter') verify2FA(); });
 
-                        <div onclick="router.navigate('close-day')" class="cursor-pointer bg-white p-4 rounded-3xl border border-slate-200 hover:border-brand-red transition group">
-                            <div class="w-8 h-8 rounded-2xl bg-red-50 text-brand-red flex items-center justify-center font-black mb-2 group-hover:bg-brand-red group-hover:text-white transition">
-                                <i class="fa-solid fa-lock text-xs"></i>
-                            </div>
-                            <h3 class="font-black text-slate-900 text-xs">Run Day End Close</h3>
-                            <p class="text-[11px] text-slate-500 mt-0.5">Calculate stock left, chicken wastage & net profit/loss.</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
+/* ─── VIEWPORT ─── */
+function setVP(mode){
+  const vp = document.getElementById('vp');
+  const bl = document.getElementById('btn-laptop');
+  const bm = document.getElementById('btn-mobile');
+  if(mode==='mobile'){
+    vp.className='vp-mobile bg-white shadow-2xl';
+    vp.style.overflow='hidden';
+    bm.className='px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 text-red-500 bg-white shadow-sm text-[10px] transition';
+    bl.className='px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 text-slate-400 hover:text-white text-[10px] transition';
+  } else {
+    vp.className='vp-laptop bg-white min-h-screen shadow-2xl';
+    vp.style.overflow='';
+    bl.className='px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 text-red-500 bg-white shadow-sm text-[10px] transition';
+    bm.className='px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 text-slate-400 hover:text-white text-[10px] transition';
+  }
+}
 
-        function renderPurchasesView() {
-            return `
-                <div class="space-y-4 sm:space-y-6">
-                    <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-                        <div>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-brand-red">Stock Management</span>
-                            <h2 class="text-lg sm:text-2xl font-black text-slate-900 uppercase">Daily Stock Purchases</h2>
-                            <p class="text-xs text-slate-500 font-medium">Record incoming stock for Chicken, Beef, and Mutton</p>
-                        </div>
-                        <button onclick="openCSVModal()" class="bg-amber-500 hover:bg-amber-600 text-white font-extrabold px-3.5 py-2 rounded-2xl text-xs transition shadow-sm flex items-center justify-center gap-2 self-start sm:self-auto">
-                            <i class="fa-solid fa-file-csv text-sm"></i>
-                            <span>Import CSV</span>
-                        </button>
-                    </div>
+/* ─── SIDEBAR ─── */
+function toggleSidebar(){
+  const s = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebar-backdrop');
+  const isHidden = s.classList.contains('hidden');
+  s.classList.toggle('hidden');
+  if(bd){
+    if(isHidden){ bd.classList.remove('hidden'); }
+    else { bd.classList.add('hidden'); }
+  }
+}
+function closeSidebarMobile(){
+  if(window.innerWidth < 768){
+    document.getElementById('sidebar').classList.add('hidden');
+    const bd = document.getElementById('sidebar-backdrop');
+    if(bd) bd.classList.add('hidden');
+  }
+}
 
-                    <!-- New Purchase Form -->
-                    <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-                        <h3 class="font-black text-xs text-brand-red uppercase tracking-wider flex items-center gap-2">
-                            <i class="fa-solid fa-circle-plus"></i>
-                            <span>New Stock Entry Form</span>
-                        </h3>
+/* ─── CHANNEL ─── */
+function setChannel(ch){
+  channel=ch;
+  ['all','online','physical'].forEach(c=>{
+    const btn=document.getElementById('ch-'+c);
+    btn.className = c===ch
+      ? 'py-1 rounded-lg bg-red-600 text-white text-[10px] font-black text-center shadow'
+      : 'py-1 rounded-lg text-slate-400 hover:text-white text-[10px] font-black text-center transition';
+  });
+  renderView();
+}
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                            <div>
-                                <label class="block text-[10px] font-black uppercase text-slate-700 mb-1">Category</label>
-                                <select id="pur-category" onchange="togglePurchaseCategoryFields()" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red">
-                                    <option value="chicken">Chicken Category</option>
-                                    <option value="beef">Beef Category</option>
-                                    <option value="mutton">Mutton Category</option>
-                                </select>
-                            </div>
+/* ─── ROUTER ─── */
+function go(r){
+  route=r;
+  document.querySelectorAll('.nav-item').forEach(el=>{
+    el.classList.remove('active');
+    el.classList.add('text-slate-400','hover:bg-slate-800','hover:text-white');
+    el.classList.remove('text-white');
+    el.querySelectorAll('i').forEach(i=>i.classList.remove('text-white'));
+  });
+  const active = document.getElementById('nav-'+r);
+  if(active){
+    active.classList.add('active');
+    active.classList.remove('text-slate-400','hover:bg-slate-800','hover:text-white');
+  }
+  renderView();
+  closeSidebarMobile();
+  document.getElementById('view').className = 'max-w-7xl mx-auto space-y-4 sm:space-y-5 fade-in';
+}
 
-                            <div id="field-birds-box">
-                                <label class="block text-[10px] font-black uppercase text-slate-700 mb-1">Total Birds</label>
-                                <input type="number" id="pur-birds" placeholder="e.g. 180" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red">
-                            </div>
+function renderView(){
+  const v = document.getElementById('view');
+  if(!v) return;
+  const map = { overview:viewOverview, purchases:viewPurchases, rates:viewRates,
+    orders:viewOrders, shopSales:viewShopSales, closeDay:viewCloseDay,
+    suppliers:viewSuppliers, wastage:viewWastage, stock:viewStock, reports:viewReports };
+  v.innerHTML = (map[route]||viewOverview)();
+}
 
-                            <div>
-                                <label class="block text-[10px] font-black uppercase text-slate-700 mb-1">Total Weight (KG)</label>
-                                <input type="number" id="pur-weight" placeholder="e.g. 260" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red">
-                            </div>
+/* ─── TOAST ─── */
+function toast(msg, type='success'){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  document.getElementById('toast-icon').className = type==='success'
+    ? 'fa-solid fa-circle-check text-emerald-400 text-sm'
+    : 'fa-solid fa-circle-exclamation text-red-400 text-sm';
+  t.classList.remove('hidden');
+  setTimeout(()=>t.classList.add('hidden'), 3000);
+}
+function showAlert(){ toast('3 new alerts: 2 orders pending, 1 supplier payment due', 'warn'); }
 
-                            <div>
-                                <label class="block text-[10px] font-black uppercase text-slate-700 mb-1">Rate/KG (Rs)</label>
-                                <input type="number" id="pur-rate" placeholder="e.g. 390" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red">
-                            </div>
-                        </div>
+/* ─── HELPERS ─── */
+const fmt = n => 'Rs. ' + Number(n).toLocaleString();
+function statusBadge(type){
+  const map={ full:'badge-green Full Paid', half:'badge-amber Partial', credit:'badge-red Credit',
+              paid:'badge-green Paid', partial:'badge-amber Partial' };
+  const cls = map[type]||'badge-slate';
+  const parts = cls.split(' ');
+  return `<span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${parts[0]}">${parts.slice(1).join(' ')}</span>`;
+}
+function orderStatusBadge(s){
+  const map={New:'badge-red',Confirmed:'badge-amber',Packed:'badge-blue','Out for delivery':'badge-blue',Delivered:'badge-green',Cancelled:'badge-slate'};
+  return `<span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${map[s]||'badge-slate'}">${s}</span>`;
+}
+function channelBadge(c){ return `<span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${c==='online'?'badge-blue':'badge-slate'}">${c}</span>`; }
+function pageHeader(eyebrow, title, sub, right=''){
+  return `<div class="card p-4 sm:p-5 flex flex-col gap-2.5">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <div class="min-w-0">
+        <span class="text-[10px] font-black uppercase tracking-widest text-red-600">${eyebrow}</span>
+        <h2 class="text-base sm:text-xl font-black text-slate-900 uppercase tracking-tight mt-0.5 leading-tight break-words">${title}</h2>
+        <p class="text-xs text-slate-500 font-medium mt-0.5 leading-snug">${sub}</p>
+      </div>
+      ${right ? `<div class="shrink-0">${right}</div>` : ''}
+    </div>
+  </div>`;
+}
+function tableWrap(headers, rows){
+  return `<div class="card" style="overflow:hidden;width:100%;min-width:0;">
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%;">
+      <table style="width:100%;min-width:520px;" class="text-left text-xs text-slate-800 whitespace-nowrap">
+        <thead class="bg-slate-50 text-slate-500 uppercase font-black text-[10px] border-b border-slate-200">
+          <tr>${headers.map(h=>`<th class="p-3 px-3">${h}</th>`).join('')}</tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 font-medium">${rows}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
 
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                            <div>
-                                <label class="block text-[10px] font-black uppercase text-slate-700 mb-1">Supplier Name</label>
-                                <input type="text" id="pur-supplier" placeholder="e.g. Bismillah Farm" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red">
-                            </div>
+/* ══════════════════════════════════════════
+   OVERVIEW VIEW
+══════════════════════════════════════════ */
+function viewOverview(){
+  const totalSales = 214800;
+  const totalPurchases = purchases.reduce((s,p)=>s+p.total, 0);
+  const profit = 42500;
+  const creditOwed = suppliers.reduce((s,s2)=>s+s2.bal, 0);
+  return `
+  <div class="space-y-4 sm:space-y-5">
+    ${pageHeader('Operational Control','Abdullah Meat Hub','Real-time daily metrics &amp; store status',
+      `<div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2 text-xs font-bold text-slate-700">
+        <i class="fa-regular fa-calendar-check text-red-600"></i> Nov 04, 2026
+      </div>`)}
 
-                            <div>
-                                <label class="block text-[10px] font-black uppercase text-slate-700 mb-1">Payment Status</label>
-                                <select id="pur-payment-type" onchange="handlePaymentStatusChange()" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red">
-                                    <option value="full">Full Payment Paid</option>
-                                    <option value="half">Half / Partial Paid</option>
-                                    <option value="credit">Full Credit (Zero Paid)</option>
-                                </select>
-                            </div>
+    <!-- Scale status bar -->
+    <div class="card px-4 py-3 flex flex-wrap items-center gap-4 text-xs font-bold">
+      <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 pulse"></span><span class="text-slate-600">Scale Synced: <strong>2 mins ago</strong></span></div>
+      <div class="text-slate-300">|</div>
+      <div class="text-slate-600">Day Status: <span class="text-emerald-600 font-black">Open</span></div>
+      <div class="text-slate-300">|</div>
+      <div class="text-slate-600">Channel: <span class="text-red-600 font-black uppercase">${channel==='all'?'All':''}${channel==='online'?'Online':''}${channel==='physical'?'Shop':''}</span></div>
+    </div>
 
-                            <div id="field-paid-box">
-                                <label class="block text-[10px] font-black uppercase text-slate-700 mb-1">Amount Paid Now (Rs)</label>
-                                <input type="number" id="pur-paid-amount" placeholder="Enter paid amount" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-brand-red">
-                            </div>
-                        </div>
+    <!-- Metric Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="metric-card">
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-[10px] font-black uppercase text-slate-500">Today Sales</span>
+          <i class="fa-solid fa-cash-register text-red-600 text-sm"></i>
+        </div>
+        <div class="text-lg sm:text-xl font-black text-slate-900">${fmt(totalSales)}</div>
+        <div class="mt-1.5 text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+          <i class="fa-solid fa-arrow-trend-up text-[10px]"></i> +14.2% vs yesterday
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-[10px] font-black uppercase text-slate-500">Purchases</span>
+          <i class="fa-solid fa-truck-ramp-box text-red-600 text-sm"></i>
+        </div>
+        <div class="text-lg sm:text-xl font-black text-slate-900">${fmt(totalPurchases)}</div>
+        <div class="mt-1.5 text-[11px] font-bold text-slate-500">${purchases.length} Entries Today</div>
+      </div>
+      <div class="metric-card">
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-[10px] font-black uppercase text-slate-500">Est. Profit</span>
+          <i class="fa-solid fa-chart-line text-emerald-600 text-sm"></i>
+        </div>
+        <div class="text-lg sm:text-xl font-black text-emerald-600">${fmt(profit)}</div>
+        <div class="mt-1.5 text-[11px] font-bold text-emerald-700">Estimated (day open)</div>
+      </div>
+      <div class="metric-card">
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-[10px] font-black uppercase text-slate-500">Credit Owed</span>
+          <i class="fa-solid fa-hand-holding-dollar text-red-500 text-sm"></i>
+        </div>
+        <div class="text-lg sm:text-xl font-black text-red-600">${fmt(creditOwed)}</div>
+        <div class="mt-1.5 text-[11px] font-bold text-red-500">Pending Payables</div>
+      </div>
+    </div>
 
-                        <button onclick="savePurchaseRecord()" class="w-full bg-brand-red hover:bg-brand-redHover text-white font-black py-3 rounded-2xl transition shadow-lg shadow-red-500/20 text-xs uppercase tracking-wider">
-                            Save Stock Purchase Entry
-                        </button>
-                    </div>
+    <!-- Sales split -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div class="metric-card border-l-4 border-blue-500">
+        <span class="text-[10px] font-black uppercase text-slate-500 block mb-1">Online Sales</span>
+        <div class="text-base font-black text-slate-900">${fmt(5060)}</div>
+        <div class="text-[11px] font-bold text-blue-600 mt-1">2 Orders</div>
+      </div>
+      <div class="metric-card border-l-4 border-slate-400">
+        <span class="text-[10px] font-black uppercase text-slate-500 block mb-1">Shop Sales</span>
+        <div class="text-base font-black text-slate-900">${fmt(207665)}</div>
+        <div class="text-[11px] font-bold text-slate-600 mt-1">Scale + Manual</div>
+      </div>
+      <div class="metric-card border-l-4 border-amber-500">
+        <span class="text-[10px] font-black uppercase text-slate-500 block mb-1">Wastage Income</span>
+        <div class="text-base font-black text-slate-900">${fmt(2100)}</div>
+        <div class="text-[11px] font-bold text-amber-600 mt-1">14 kg @ Rs.150</div>
+      </div>
+    </div>
 
-                    <!-- Purchases Log Table with horizontal scroll wrapper -->
-                    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div class="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center">
-                            <h3 class="font-black text-xs text-slate-900 uppercase tracking-wider">Purchases Log</h3>
-                            <span class="text-xs font-bold text-slate-500">${purchasesData.length} Entries</span>
-                        </div>
-                        <div class="overflow-x-auto w-full">
-                            <table class="w-full text-left text-xs text-slate-800 whitespace-nowrap min-w-[600px]">
-                                <thead class="bg-slate-50 text-slate-500 uppercase font-black text-[10px] border-b border-slate-200">
-                                    <tr>
-                                        <th class="p-3">Category</th>
-                                        <th class="p-3">Birds / Weight</th>
-                                        <th class="p-3">Rate/KG</th>
-                                        <th class="p-3">Total Bill</th>
-                                        <th class="p-3">Paid Now</th>
-                                        <th class="p-3">Remaining</th>
-                                        <th class="p-3">Status</th>
-                                        <th class="p-3">Supplier</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100 font-medium">
-                                    ${purchasesData.map(p => `
-                                        <tr class="hover:bg-slate-50 transition">
-                                            <td class="p-3 uppercase font-black text-slate-900">${p.category}</td>
-                                            <td class="p-3 font-bold">${p.category === 'chicken' ? p.birds + ' Birds (' + p.weight + 'kg)' : p.weight + 'kg'}</td>
-                                            <td class="p-3">Rs. ${p.rate}</td>
-                                            <td class="p-3 font-black text-slate-900">Rs. ${p.total.toLocaleString()}</td>
-                                            <td class="p-3 text-emerald-600 font-bold">Rs. ${p.paid.toLocaleString()}</td>
-                                            <td class="p-3 text-red-600 font-bold">Rs. ${p.remaining.toLocaleString()}</td>
-                                            <td class="p-3">
-                                                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${p.paymentType === 'full' ? 'bg-emerald-100 text-emerald-800' : p.paymentType === 'half' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}">
-                                                    ${p.paymentType}
-                                                </span>
-                                            </td>
-                                            <td class="p-3 text-slate-600 font-bold">${p.supplier}</td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
+    <!-- Quick Actions -->
+    <div>
+      <h3 class="text-xs font-black uppercase text-slate-500 tracking-widest mb-2 px-1">Quick Actions</h3>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2" style="width:100%;min-width:0;">
+        ${[
+          ['purchases','fa-plus','Add Purchase','Record stock in'],
+          ['rates','fa-tags','Set Rates','Update sell rates'],
+          ['orders','fa-basket-shopping','Orders','Manage orders'],
+          ['wastage','fa-trash-can','Add Wastage','Chicken waste'],
+          ['closeDay','fa-lock','Close Day','End of day']
+        ].map(([r,ic,title,sub])=>`
+          <button onclick="go('${r}')" class="card p-3.5 hover:border-red-400 transition group text-left cursor-pointer border border-transparent hover:shadow-md">
+            <div class="w-7 h-7 rounded-xl bg-red-50 text-red-600 flex items-center justify-center mb-2 group-hover:bg-red-600 group-hover:text-white transition">
+              <i class="fa-solid ${ic} text-xs"></i>
+            </div>
+            <div class="font-black text-slate-900 text-xs">${title}</div>
+            <div class="text-[10px] text-slate-500 mt-0.5">${sub}</div>
+          </button>`).join('')}
+      </div>
+    </div>
 
-        function renderCloseDayView() {
-            return `
-                <div class="space-y-4 sm:space-y-6">
-                    <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-                        <div>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-brand-red">End of Day Closing</span>
-                            <h2 class="text-lg sm:text-2xl font-black text-slate-900 uppercase">Day End Summary</h2>
-                            <p class="text-xs text-slate-500 font-medium">Stock left, revenue, profit/loss & chicken wastage</p>
-                        </div>
+    <!-- Recent Orders (last 3) -->
+    <div class="card overflow-hidden">
+      <div class="section-header">
+        <span class="font-black text-xs uppercase text-slate-900 tracking-wider">Recent Orders</span>
+        <button onclick="go('orders')" class="text-xs text-red-600 font-bold hover:underline">View All →</button>
+      </div>
+      ${tableWrap(['Order','Customer','Channel','Total','Status'],
+        orders.slice(0,3).map(o=>`<tr class="row">
+          <td class="p-3 px-4 font-black text-red-600">${o.id}</td>
+          <td class="p-3 px-4 font-bold">${o.cust}</td>
+          <td class="p-3 px-4">${channelBadge(o.channel)}</td>
+          <td class="p-3 px-4 font-black">${fmt(o.total)}</td>
+          <td class="p-3 px-4">${orderStatusBadge(o.status)}</td>
+        </tr>`).join('')
+      )}
+    </div>
+  </div>`;
+}
 
-                        <div class="flex items-center space-x-2 bg-slate-50 p-2 rounded-2xl border border-slate-200 self-start sm:self-auto">
-                            <i class="fa-regular fa-calendar-days text-brand-red text-xs"></i>
-                            <span class="text-[11px] font-black text-slate-700">Date:</span>
-                            <input type="date" value="2026-11-04" class="bg-white border border-slate-200 rounded-xl px-2 py-1 text-xs font-bold text-slate-800 focus:outline-none">
-                        </div>
-                    </div>
+/* ══════════════════════════════════════════
+   PURCHASES VIEW
+══════════════════════════════════════════ */
+function viewPurchases(){
+  return `<div class="space-y-4 sm:space-y-5">
+    ${pageHeader('Stock Management','Daily Stock Purchases','Record incoming Chicken, Beef &amp; Mutton',
+      `<button onclick="openCSV()" class="bg-amber-500 hover:bg-amber-600 text-white font-extrabold px-3.5 py-2 rounded-2xl text-xs uppercase shadow-sm flex items-center gap-2 transition">
+        <i class="fa-solid fa-file-csv"></i>Import CSV
+      </button>`)}
 
-                    <!-- Category Summaries -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-                            <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
-                                <h3 class="font-black text-xs text-slate-900 uppercase">Chicken Summary</h3>
-                                <span class="text-[9px] bg-red-100 text-brand-red font-black px-2 py-0.5 rounded-full uppercase">Wastage Active</span>
-                            </div>
-                            <div class="space-y-2 text-xs">
-                                <div class="flex justify-between"><span class="text-slate-500">Stock Left:</span> <span class="font-black text-slate-900">22kg (Rs. 13,640)</span></div>
-                                <div class="flex justify-between"><span class="text-slate-500">Sales Revenue:</span> <span class="font-black text-emerald-600">Rs. 92,400</span></div>
-                                <div class="flex justify-between border-t border-slate-100 pt-2 font-bold"><span class="text-slate-700">Wastage Amount:</span> <span class="font-black text-brand-red">14kg (Rs. 2,100)</span></div>
-                            </div>
-                        </div>
+    <!-- New Entry Form -->
+    <div class="card p-4 sm:p-6 space-y-4">
+      <h3 class="font-black text-xs text-red-600 uppercase tracking-wider flex items-center gap-2">
+        <i class="fa-solid fa-circle-plus"></i>New Stock Entry
+      </h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div>
+          <label class="lbl">Category</label>
+          <select id="pur-cat" onchange="toggleBirdsField()" class="inp">
+            <option value="chicken">Chicken</option>
+            <option value="beef">Beef</option>
+            <option value="mutton">Mutton</option>
+          </select>
+        </div>
+        <div id="birds-wrap">
+          <label class="lbl">Total Birds</label>
+          <input type="number" id="pur-birds" placeholder="e.g. 180" class="inp">
+        </div>
+        <div>
+          <label class="lbl">Weight (KG)</label>
+          <input type="number" id="pur-weight" placeholder="e.g. 260" class="inp">
+        </div>
+        <div>
+          <label class="lbl">Rate / KG (Rs)</label>
+          <input type="number" id="pur-rate" placeholder="e.g. 390" class="inp">
+        </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <label class="lbl">Supplier Name</label>
+          <input type="text" id="pur-supplier" placeholder="Supplier name" class="inp" list="supplier-list">
+          <datalist id="supplier-list">${suppliers.map(s=>`<option value="${s.name}">`).join('')}</datalist>
+        </div>
+        <div>
+          <label class="lbl">Payment Status</label>
+          <select id="pur-payment" onchange="togglePaidField()" class="inp">
+            <option value="full">Full Payment</option>
+            <option value="half">Partial / Half</option>
+            <option value="credit">Full Credit</option>
+          </select>
+        </div>
+        <div id="paid-wrap">
+          <label class="lbl">Amount Paid Now (Rs)</label>
+          <input type="number" id="pur-paid" placeholder="Enter amount" class="inp">
+        </div>
+      </div>
+      <button onclick="savePurchase()" class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-3 rounded-2xl transition shadow-lg shadow-red-500/20 text-xs uppercase tracking-wider">
+        Save Stock Purchase
+      </button>
+    </div>
 
-                        <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-                            <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
-                                <h3 class="font-black text-xs text-slate-900 uppercase">Beef Summary</h3>
-                                <span class="text-[9px] bg-slate-100 text-slate-600 font-black px-2 py-0.5 rounded-full uppercase">No Wastage</span>
-                            </div>
-                            <div class="space-y-2 text-xs">
-                                <div class="flex justify-between"><span class="text-slate-500">Stock Left:</span> <span class="font-black text-slate-900">35kg (Rs. 38,500)</span></div>
-                                <div class="flex justify-between"><span class="text-slate-500">Sales Revenue:</span> <span class="font-black text-emerald-600">Rs. 128,000</span></div>
-                            </div>
-                        </div>
+    <!-- Purchases Log -->
+    <div class="card overflow-hidden">
+      <div class="section-header">
+        <span class="font-black text-xs uppercase text-slate-900 tracking-wider">Purchases Log</span>
+        <span class="text-xs font-bold text-slate-500">${purchases.length} Entries</span>
+      </div>
+      ${tableWrap(['Category','Birds / Weight','Rate/KG','Total Bill','Paid','Remaining','Status','Supplier'],
+        purchases.map(p=>`<tr class="row">
+          <td class="p-3 px-4 font-black uppercase text-slate-900">${p.cat}</td>
+          <td class="p-3 px-4 font-bold">${p.cat==='chicken'?p.birds+' Birds ('+p.weight+'kg)':p.weight+'kg'}</td>
+          <td class="p-3 px-4">${fmt(p.rate)}</td>
+          <td class="p-3 px-4 font-black">${fmt(p.total)}</td>
+          <td class="p-3 px-4 text-emerald-600 font-bold">${fmt(p.paid)}</td>
+          <td class="p-3 px-4 text-red-600 font-bold">${fmt(p.rem)}</td>
+          <td class="p-3 px-4">${statusBadge(p.type)}</td>
+          <td class="p-3 px-4 text-slate-600 font-bold">${p.supplier}</td>
+        </tr>`).join('')
+      )}
+    </div>
+  </div>`;
+}
 
-                        <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-                            <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
-                                <h3 class="font-black text-xs text-slate-900 uppercase">Mutton Summary</h3>
-                                <span class="text-[9px] bg-slate-100 text-slate-600 font-black px-2 py-0.5 rounded-full uppercase">No Wastage</span>
-                            </div>
-                            <div class="space-y-2 text-xs">
-                                <div class="flex justify-between"><span class="text-slate-500">Stock Left:</span> <span class="font-black text-slate-900">18kg (Rs. 44,100)</span></div>
-                                <div class="flex justify-between"><span class="text-slate-500">Sales Revenue:</span> <span class="font-black text-emerald-600">Rs. 115,000</span></div>
-                            </div>
-                        </div>
-                    </div>
+function toggleBirdsField(){
+  const cat = document.getElementById('pur-cat')?.value;
+  const wrap = document.getElementById('birds-wrap');
+  if(wrap) wrap.style.display = cat==='chicken' ? '' : 'none';
+}
+function togglePaidField(){
+  const type = document.getElementById('pur-payment')?.value;
+  const wrap = document.getElementById('paid-wrap');
+  if(wrap) wrap.style.display = type==='credit' ? 'none' : '';
+  if(type==='full'){
+    const w = document.getElementById('pur-weight');
+    const r = document.getElementById('pur-rate');
+    const p = document.getElementById('pur-paid');
+    if(w&&r&&p&&w.value&&r.value) p.value = Number(w.value)*Number(r.value);
+  }
+  if(type==='credit'){
+    const p = document.getElementById('pur-paid');
+    if(p) p.value = '';
+  }
+}
+function savePurchase(){
+  const cat     = document.getElementById('pur-cat')?.value||'chicken';
+  const birds   = Number(document.getElementById('pur-birds')?.value||0);
+  const weight  = Number(document.getElementById('pur-weight')?.value);
+  const rate    = Number(document.getElementById('pur-rate')?.value);
+  const supplier= document.getElementById('pur-supplier')?.value;
+  const type    = document.getElementById('pur-payment')?.value||'full';
+  const paid    = type==='credit' ? 0 : Number(document.getElementById('pur-paid')?.value||0);
+  if(!weight||!rate||!supplier){ toast('Please fill all required fields','error'); return; }
+  const total = weight * rate;
+  const rem   = total - paid;
+  purchases.unshift({ id:'p'+Date.now(), date:'2026-11-04', cat, birds, weight, rate, total, paid, rem, type, supplier });
+  toast('Purchase saved successfully!');
+  renderView();
+}
 
-                    <!-- Overall Net Balance Card -->
-                    <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-                        <h3 class="font-black text-xs text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-3">Overall Net Balance</h3>
+/* ══════════════════════════════════════════
+   RATES VIEW
+══════════════════════════════════════════ */
+function viewRates(){
+  const cats = ['chicken','beef','mutton'];
+  const catRows = rates[activeRatesCat].map(r=>{
+    const diff = r.rate - r.prev;
+    const pct = r.prev > 0 ? ((diff/r.prev)*100).toFixed(1) : 0;
+    return `<tr class="row">
+      <td class="p-3 px-4 font-bold text-slate-900">${r.name}</td>
+      <td class="p-3 px-4 text-slate-500 font-bold">${fmt(r.prev)}</td>
+      <td class="p-3 px-4">
+        <input type="number" value="${r.rate}" data-id="${r.id}"
+          onchange="updateRate('${activeRatesCat}','${r.id}',this.value)"
+          class="w-28 bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs font-black focus:outline-none focus:border-red-500 transition">
+      </td>
+      <td class="p-3 px-4">
+        <span class="font-bold text-xs ${diff>0?'text-emerald-600':diff<0?'text-red-600':'text-slate-500'}">
+          ${diff>0?'+':''}${fmt(diff)} (${pct}%)
+        </span>
+      </td>
+      <td class="p-3 px-4">
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" checked class="sr-only peer">
+          <div class="w-8 h-4 bg-slate-200 rounded-full peer peer-checked:bg-red-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-3 after:w-3 after:transition"></div>
+        </label>
+      </td>
+    </tr>`;
+  }).join('');
 
-                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 text-center">
-                            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
-                                <span class="text-[9px] font-black uppercase text-slate-500 block">Total Sales</span>
-                                <div class="text-sm sm:text-lg font-black text-emerald-600 mt-1">Rs. 335,400</div>
-                            </div>
-                            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
-                                <span class="text-[9px] font-black uppercase text-slate-500 block">Total Cost</span>
-                                <div class="text-sm sm:text-lg font-black text-slate-900 mt-1">Rs. 417,750</div>
-                            </div>
-                            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
-                                <span class="text-[9px] font-black uppercase text-slate-500 block">Closing Stock</span>
-                                <div class="text-sm sm:text-lg font-black text-amber-600 mt-1">Rs. 96,240</div>
-                            </div>
-                            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
-                                <span class="text-[9px] font-black uppercase text-slate-500 block">Net Profit</span>
-                                <div class="text-sm sm:text-lg font-black text-emerald-600 mt-1">+Rs. 42,500</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
+  return `<div class="space-y-4 sm:space-y-5">
+    ${pageHeader('Price Management','Daily Selling Rates','Set per-KG selling rates — website updates on Publish')}
 
-        function renderSuppliersView() {
-            return `
-                <div class="space-y-4 sm:space-y-6">
-                    <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-                        <div>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-brand-red">Credit Ledger</span>
-                            <h2 class="text-lg sm:text-2xl font-black text-slate-900 uppercase">Suppliers & Credit</h2>
-                            <p class="text-xs text-slate-500 font-medium">Track supplier payments, phone numbers & balances</p>
-                        </div>
+    <!-- Category Tabs -->
+    <div class="card p-4 flex flex-wrap gap-2 items-center justify-between">
+      <div class="flex gap-2">
+        ${cats.map(c=>`<button onclick="setRatesCat('${c}')" class="cat-tab${activeRatesCat===c?' active':''}">${c.charAt(0).toUpperCase()+c.slice(1)}</button>`).join('')}
+      </div>
+      <div class="flex gap-2">
+        <button onclick="copyYesterday()" class="btn-slate text-[10px]"><i class="fa-regular fa-copy mr-1"></i>Copy Yesterday</button>
+        <button onclick="publishRates()" class="btn-red text-[10px]"><i class="fa-solid fa-upload mr-1"></i>Publish Rates</button>
+      </div>
+    </div>
 
-                        <div class="flex items-center space-x-2 bg-slate-50 p-2 rounded-2xl border border-slate-200 self-start sm:self-auto">
-                            <i class="fa-regular fa-calendar text-brand-red text-xs"></i>
-                            <span class="text-[11px] font-black text-slate-700">Filter:</span>
-                            <input type="date" value="2026-11-04" class="bg-white border border-slate-200 rounded-xl px-2 py-1 text-xs font-bold text-slate-800 focus:outline-none">
-                        </div>
-                    </div>
+    <!-- Rates Table -->
+    ${tableWrap(['Product','Yesterday Rate','Today Rate (Rs/kg)','Change','Available'],catRows)}
 
-                    <!-- Suppliers Table with horizontal scroll wrapper -->
-                    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div class="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center">
-                            <h3 class="font-black text-xs text-slate-900 uppercase tracking-wider">Registered Suppliers</h3>
-                            <button onclick="alert('Add Supplier Modal')" class="bg-brand-red hover:bg-brand-redHover text-white font-black px-3 py-1.5 rounded-xl text-xs uppercase shadow-sm">
-                                + Add Supplier
-                            </button>
-                        </div>
-                        <div class="overflow-x-auto w-full">
-                            <table class="w-full text-left text-xs text-slate-800 whitespace-nowrap min-w-[600px]">
-                                <thead class="bg-slate-50 text-slate-500 uppercase font-black text-[10px] border-b border-slate-200">
-                                    <tr>
-                                        <th class="p-3">Supplier Name</th>
-                                        <th class="p-3">Phone</th>
-                                        <th class="p-3">Bought</th>
-                                        <th class="p-3">Paid</th>
-                                        <th class="p-3">Balance Owed</th>
-                                        <th class="p-3">Status</th>
-                                        <th class="p-3">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100 font-medium">
-                                    ${suppliersData.map(s => `
-                                        <tr class="hover:bg-slate-50 transition">
-                                            <td class="p-3 font-black text-slate-900">${s.name}</td>
-                                            <td class="p-3 text-slate-600 font-bold">${s.phone}</td>
-                                            <td class="p-3 font-black text-slate-900">Rs. ${s.totalBought.toLocaleString()}</td>
-                                            <td class="p-3 text-emerald-600 font-bold">Rs. ${s.totalPaid.toLocaleString()}</td>
-                                            <td class="p-3 text-red-600 font-black">Rs. ${s.remainingBalance.toLocaleString()}</td>
-                                            <td class="p-3">
-                                                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${s.remainingBalance === 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                                                    ${s.lastStatus}
-                                                </span>
-                                            </td>
-                                            <td class="p-3">
-                                                <button onclick="alert('WhatsApp statement sent to: ' + '${s.phone}')" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-black px-2 py-1 rounded-lg text-[10px] transition flex items-center gap-1">
-                                                    <i class="fa-brands fa-whatsapp text-xs"></i> WhatsApp
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
+    <div class="card p-4 bg-amber-50 border border-amber-200 text-xs font-bold text-amber-900">
+      <i class="fa-solid fa-triangle-exclamation mr-2 text-amber-600"></i>
+      Rates are <strong>drafts</strong> until you press <strong>Publish Rates</strong>. After publishing, the website updates within 1 minute. Remember to update the scale prices manually.
+    </div>
+  </div>`;
+}
+function setRatesCat(c){ activeRatesCat=c; renderView(); }
+function updateRate(cat, id, val){
+  const item = rates[cat].find(r=>r.id===id);
+  if(item) item.rate = Number(val);
+}
+function copyYesterday(){
+  rates[activeRatesCat].forEach(r=>r.rate=r.prev);
+  renderView();
+  toast('Copied yesterday\'s rates!');
+}
+function publishRates(){ toast('Rates published! Website updated.'); }
 
-        function renderOrdersView() {
-            return `
-                <div class="space-y-4 sm:space-y-6">
-                    <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm flex justify-between items-center">
-                        <div>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-brand-red">Website & Store</span>
-                            <h2 class="text-lg sm:text-2xl font-black text-slate-900 uppercase">Orders & Sales Log</h2>
-                            <p class="text-xs text-slate-500 font-medium">Manage Online COD Orders and Shop Scale Sales</p>
-                        </div>
-                    </div>
+/* ══════════════════════════════════════════
+   ORDERS VIEW
+══════════════════════════════════════════ */
+function viewOrders(){
+  const filtered = channel==='all' ? orders : orders.filter(o=>o.channel===channel);
+  const statuses = ['All','New','Confirmed','Packed','Out for delivery','Delivered','Cancelled'];
+  return `<div class="space-y-4 sm:space-y-5">
+    ${pageHeader('Website & Store','Orders & Sales Log','Manage Online COD Orders &amp; Shop Walk-in Sales',
+      `<button onclick="addManualOrder()" class="btn-red flex items-center gap-2 text-[10px]"><i class="fa-solid fa-plus"></i>Manual Sale</button>`)}
 
-                    <!-- Orders Table with horizontal scroll wrapper -->
-                    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div class="overflow-x-auto w-full">
-                            <table class="w-full text-left text-xs text-slate-800 whitespace-nowrap min-w-[600px]">
-                                <thead class="bg-slate-50 text-slate-500 uppercase font-black text-[10px] border-b border-slate-200">
-                                    <tr>
-                                        <th class="p-3">Order ID</th>
-                                        <th class="p-3">Customer</th>
-                                        <th class="p-3">Channel</th>
-                                        <th class="p-3">Category</th>
-                                        <th class="p-3">Items</th>
-                                        <th class="p-3">Total</th>
-                                        <th class="p-3">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100 font-medium">
-                                    ${ordersData.map(o => `
-                                        <tr class="hover:bg-slate-50 transition">
-                                            <td class="p-3 font-black text-brand-red">${o.id}</td>
-                                            <td class="p-3 font-bold">${o.customer} <br><span class="text-[10px] text-slate-400">${o.phone}</span></td>
-                                            <td class="p-3">
-                                                <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${o.channel === 'online' ? 'bg-blue-100 text-blue-800' : 'bg-slate-200 text-slate-800'}">
-                                                    ${o.channel}
-                                                </span>
-                                            </td>
-                                            <td class="p-3 uppercase font-bold">${o.category}</td>
-                                            <td class="p-3 text-slate-600">${o.items}</td>
-                                            <td class="p-3 font-black text-slate-900">Rs. ${o.total.toLocaleString()}</td>
-                                            <td class="p-3">
-                                                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${o.status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                                                    ${o.status}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
+    <!-- Status tabs -->
+    <div class="card p-3 flex flex-wrap gap-1.5">
+      ${statuses.map(s=>`<button onclick="toast('Filter: ${s}')" class="text-[10px] font-black px-3 py-1.5 rounded-xl ${s==='All'?'bg-red-600 text-white':'bg-slate-100 text-slate-600 hover:bg-slate-200'} transition">${s}</button>`).join('')}
+    </div>
 
-        /* --- CSV IMPORT --- */
-        function openCSVModal() {
-            document.getElementById('modal-csv-upload').classList.remove('hidden');
-        }
+    ${tableWrap(['Order ID','Customer','Channel','Category','Items','Total','Status','Time'],
+      filtered.map(o=>`<tr class="row">
+        <td class="p-3 px-4 font-black text-red-600">${o.id}</td>
+        <td class="p-3 px-4"><div class="font-bold">${o.cust}</div><div class="text-[10px] text-slate-400">${o.phone}</div></td>
+        <td class="p-3 px-4">${channelBadge(o.channel)}</td>
+        <td class="p-3 px-4 font-bold uppercase">${o.cat}</td>
+        <td class="p-3 px-4 text-slate-600">${o.items}</td>
+        <td class="p-3 px-4 font-black">${fmt(o.total)}</td>
+        <td class="p-3 px-4">${orderStatusBadge(o.status)}</td>
+        <td class="p-3 px-4 text-slate-500 font-bold">${o.time}</td>
+      </tr>`).join('')
+    )}
+  </div>`;
+}
+function addManualOrder(){ toast('Manual sale entry feature coming in Phase 2'); }
 
-        function closeCSVModal() {
-            document.getElementById('modal-csv-upload').classList.add('hidden');
-            document.getElementById('csv-preview-box').classList.add('hidden');
-        }
+/* ══════════════════════════════════════════
+   SHOP SALES VIEW
+══════════════════════════════════════════ */
+function viewShopSales(){
+  const filtered = channel==='all' ? shopSales : shopSales.filter(s=>s.channel===channel);
+  const totalAmt = filtered.reduce((s,r)=>s+r.amount,0);
+  const totalKg  = filtered.reduce((s,r)=>s+r.weight,0);
+  return `<div class="space-y-4 sm:space-y-5">
+    ${pageHeader('Scale Integration','Shop Sales Log','Live data from scale + manual entries')}
 
-        function handleCSVFileSelected(event) {
-            const file = event.target.files[0];
-            if (file) {
-                document.getElementById('csv-preview-text').innerText = `File "${file.name}" parsed successfully!`;
-                document.getElementById('csv-preview-box').classList.remove('hidden');
-            }
-        }
+    <!-- Scale status -->
+    <div class="card p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center"><span class="w-3 h-3 rounded-full bg-emerald-500 pulse block"></span></div>
+        <div>
+          <div class="font-black text-sm text-slate-900">Scale Machine #1 — Active</div>
+          <div class="text-xs text-slate-500 font-medium">Last sync: 2 mins ago · Agent v1.4.2 · Queue: 0</div>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <div class="text-center bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2">
+          <div class="text-[10px] font-black uppercase text-slate-500">Total KG</div>
+          <div class="font-black text-slate-900 text-sm">${totalKg.toFixed(1)} kg</div>
+        </div>
+        <div class="text-center bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2">
+          <div class="text-[10px] font-black uppercase text-slate-500">Total Amount</div>
+          <div class="font-black text-emerald-600 text-sm">${fmt(totalAmt)}</div>
+        </div>
+      </div>
+    </div>
 
-        function processCSVImport() {
-            const cat = document.getElementById('csv-target-category').value;
-            purchasesData.unshift({
-                id: 'p-csv-' + Date.now(),
-                date: '2026-11-04',
-                category: cat,
-                birds: cat === 'chicken' ? 120 : 0,
-                weight: 150,
-                rate: cat === 'chicken' ? 380 : cat === 'beef' ? 750 : 1600,
-                total: 57000,
-                paid: 57000,
-                remaining: 0,
-                paymentType: 'full',
-                supplier: 'CSV Imported Supplier'
-            });
+    ${tableWrap(['Time','Item','PLU','Weight','Rate/KG','Amount','Salesman ID','Channel','Source'],
+      filtered.map(s=>`<tr class="row">
+        <td class="p-3 px-4 font-bold text-slate-500">${s.time}</td>
+        <td class="p-3 px-4 font-bold text-slate-900">${s.item}</td>
+        <td class="p-3 px-4 text-slate-500 font-bold">${s.plu}</td>
+        <td class="p-3 px-4 font-bold">${s.weight} kg</td>
+        <td class="p-3 px-4">${fmt(s.rate)}</td>
+        <td class="p-3 px-4 font-black text-emerald-600">${fmt(s.amount)}</td>
+        <td class="p-3 px-4 text-slate-500 font-bold">${s.salesmanId}</td>
+        <td class="p-3 px-4">${channelBadge(s.channel)}</td>
+        <td class="p-3 px-4"><span class="badge-slate px-2 py-0.5 rounded-full text-[9px] font-black uppercase">${s.source}</span></td>
+      </tr>`).join('')
+    )}
+  </div>`;
+}
 
-            closeCSVModal();
-            alert(`CSV imported successfully into ${cat.toUpperCase()} records!`);
-            router.navigate('purchases');
-        }
+/* ══════════════════════════════════════════
+   CLOSE DAY VIEW
+══════════════════════════════════════════ */
+function viewCloseDay(){
+  return `<div class="space-y-4 sm:space-y-5">
+    ${pageHeader('End of Day Closing','Day End Summary','Stock remaining, revenue, profit &amp; wastage',
+      `<input type="date" value="2026-11-04" class="inp w-auto text-xs">`)}
 
-        // INITIAL ROUTE SETUP
-        router.navigate('overview');
-    </script>
+    <!-- Pre-checks -->
+    <div class="card p-4 space-y-2">
+      <h3 class="font-black text-xs uppercase text-slate-900 tracking-wider mb-3">Pre-Close Checklist</h3>
+      ${[
+        ['check','Scale synced in last 15 minutes','emerald'],
+        ['check','All chicken rates published','emerald'],
+        ['triangle-exclamation','2 orders still Confirmed — must resolve before closing','amber'],
+        ['check','Wastage entered','emerald'],
+      ].map(([ic,msg,color])=>`
+        <div class="flex items-start gap-2.5 text-xs font-bold ${color==='emerald'?'text-emerald-700':color==='amber'?'text-amber-700':'text-red-700'}">
+          <i class="fa-solid fa-${ic} mt-0.5 shrink-0"></i><span>${msg}</span>
+        </div>`).join('')}
+    </div>
+
+    <!-- Category Summaries -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      ${[
+        ['Chicken', [['Live Stock In','260 kg (180 Birds)'],['Closing Count','22 kg live'],['Meat Sold','238 kg'],['Wastage','14 kg → Rs.2,100'],['Revenue','Rs.92,400'],['Yield %','91.5%']], true],
+        ['Beef',    [['Purchased','210 kg'],['Closing Count','35 kg'],['Sold','175 kg'],['Shrinkage','0 kg'],['Revenue','Rs.128,000']], false],
+        ['Mutton',  [['Purchased','95 kg'],['Closing Count','18 kg'],['Sold','77 kg'],['Shrinkage','0 kg'],['Revenue','Rs.115,000']], false]
+      ].map(([title, rows, hasWaste])=>`
+        <div class="card p-4 sm:p-5 space-y-2.5">
+          <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+            <h3 class="font-black text-xs text-slate-900 uppercase">${title}</h3>
+            <span class="text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${hasWaste?'badge-red':'badge-slate'}">${hasWaste?'Wastage Active':'No Wastage'}</span>
+          </div>
+          <div class="space-y-1.5 text-xs">
+            ${rows.map(([label,val])=>`
+              <div class="flex justify-between">
+                <span class="text-slate-500">${label}:</span>
+                <span class="font-black text-slate-900">${val}</span>
+              </div>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>
+
+    <!-- Net Balance -->
+    <div class="card p-4 sm:p-6 space-y-4">
+      <h3 class="font-black text-xs text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-3">Overall Net Balance</h3>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 text-center">
+        ${[
+          ['Total Sales','Rs.335,400','text-emerald-600'],
+          ['Total Cost','Rs.417,750','text-slate-900'],
+          ['Closing Stock','Rs.96,240','text-amber-600'],
+          ['Net Profit','+Rs.42,500','text-emerald-600']
+        ].map(([label,val,cls])=>`
+          <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+            <span class="text-[9px] font-black uppercase text-slate-500 block">${label}</span>
+            <div class="text-sm sm:text-base font-black ${cls} mt-1">${val}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Closing counts form -->
+    <div class="card p-4 sm:p-6 space-y-4">
+      <h3 class="font-black text-xs text-red-600 uppercase tracking-wider flex items-center gap-2">
+        <i class="fa-solid fa-clipboard-list"></i>Enter Closing Counts
+      </h3>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        ${['Chicken Live (birds)','Chicken Meat (kg)','Beef (kg)','Mutton (kg)','Veal (kg)'].map((label,i)=>`
+          <div>
+            <label class="lbl">${label}</label>
+            <input type="number" placeholder="0" class="inp" value="${[180,22,35,18,0][i]}">
+          </div>`).join('')}
+      </div>
+      <div class="pt-2 flex gap-3">
+        <button onclick="toast('Summary reviewed — ready to close')" class="flex-1 py-3 bg-slate-100 text-slate-700 font-extrabold rounded-2xl text-xs uppercase hover:bg-slate-200 transition">Review Summary</button>
+        <button onclick="confirmCloseDay()" class="flex-1 py-3 bg-red-600 text-white font-black rounded-2xl text-xs uppercase shadow-lg shadow-red-500/20 hover:bg-red-700 transition">
+          <i class="fa-solid fa-lock mr-2"></i>Confirm & Close Day
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+function confirmCloseDay(){
+  if(confirm('Are you sure you want to close the day? This will lock all entries for Nov 04, 2026.')){
+    toast('Day closed and locked. PDF summary is ready.');
+  }
+}
+
+/* ══════════════════════════════════════════
+   SUPPLIERS VIEW
+══════════════════════════════════════════ */
+function viewSuppliers(){
+  return `<div class="space-y-4 sm:space-y-5">
+    ${pageHeader('Credit Ledger','Suppliers & Credit','Track payments, phone numbers &amp; balances',
+      `<div class="flex items-center gap-2">
+        <input type="date" value="2026-11-04" class="inp w-auto text-xs">
+        <button onclick="openSupplierModal()" class="btn-red flex items-center gap-1.5 whitespace-nowrap"><i class="fa-solid fa-plus"></i>Add Supplier</button>
+      </div>`)}
+
+    <!-- Supplier summary chips -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div class="metric-card border-l-4 border-emerald-500">
+        <span class="text-[10px] font-black uppercase text-slate-500 block mb-1">Total Purchased</span>
+        <div class="text-base font-black text-slate-900">${fmt(suppliers.reduce((s,x)=>s+x.bought,0))}</div>
+      </div>
+      <div class="metric-card border-l-4 border-blue-500">
+        <span class="text-[10px] font-black uppercase text-slate-500 block mb-1">Total Paid</span>
+        <div class="text-base font-black text-emerald-600">${fmt(suppliers.reduce((s,x)=>s+x.paid,0))}</div>
+      </div>
+      <div class="metric-card border-l-4 border-red-500">
+        <span class="text-[10px] font-black uppercase text-slate-500 block mb-1">Total Balance Owed</span>
+        <div class="text-base font-black text-red-600">${fmt(suppliers.reduce((s,x)=>s+x.bal,0))}</div>
+      </div>
+    </div>
+
+    <!-- Suppliers Table -->
+    <div class="card overflow-hidden">
+      <div class="section-header">
+        <span class="font-black text-xs uppercase text-slate-900 tracking-wider">Registered Suppliers</span>
+        <span class="text-xs font-bold text-slate-500">${suppliers.length} Suppliers</span>
+      </div>
+      ${tableWrap(['Supplier Name','Phone','Category','Purchased','Paid','Balance','Status','Actions'],
+        suppliers.map((s,i)=>`<tr class="row">
+          <td class="p-3 px-4 font-black text-slate-900">${s.name}</td>
+          <td class="p-3 px-4">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-600">${s.phone}</span>
+              <a href="https://wa.me/92${s.phone.replace(/\D/g,'')}/" target="_blank" class="text-emerald-600 hover:text-emerald-700" title="WhatsApp">
+                <i class="fa-brands fa-whatsapp text-sm"></i>
+              </a>
+            </div>
+          </td>
+          <td class="p-3 px-4"><span class="badge-blue px-2 py-0.5 rounded-full text-[9px] font-black uppercase">${s.category}</span></td>
+          <td class="p-3 px-4 font-black">${fmt(s.bought)}</td>
+          <td class="p-3 px-4 text-emerald-600 font-bold">${fmt(s.paid)}</td>
+          <td class="p-3 px-4 text-red-600 font-black">${fmt(s.bal)}</td>
+          <td class="p-3 px-4">${statusBadge(s.status.toLowerCase())}</td>
+          <td class="p-3 px-4">
+            <div class="flex gap-1.5">
+              <button onclick="openPaymentModal(${i})" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-black px-2 py-1 rounded-lg text-[10px] transition ${s.bal===0?'opacity-40 cursor-not-allowed':''}">
+                <i class="fa-solid fa-money-bill-wave mr-1"></i>Pay
+              </button>
+              <button onclick="toast('Ledger view: ${s.name}')" class="bg-slate-100 text-slate-600 hover:bg-slate-200 font-black px-2 py-1 rounded-lg text-[10px] transition">
+                <i class="fa-solid fa-list-ul mr-1"></i>Ledger
+              </button>
+            </div>
+          </td>
+        </tr>`).join('')
+      )}
+    </div>
+  </div>`;
+}
+
+function openSupplierModal(){ document.getElementById('modal-supplier').classList.remove('hidden'); }
+function closeSupplierModal(){ document.getElementById('modal-supplier').classList.add('hidden'); }
+function addSupplier(){
+  const name = document.getElementById('sup-name').value;
+  const phone = document.getElementById('sup-phone').value;
+  const cat = document.getElementById('sup-cat').value;
+  const opening = Number(document.getElementById('sup-opening').value||0);
+  if(!name||!phone){ toast('Name and phone are required','error'); return; }
+  suppliers.push({ name, phone, category:cat, bought:opening, paid:0, bal:opening, status:'Unpaid' });
+  closeSupplierModal();
+  toast('Supplier added!');
+  renderView();
+}
+
+function openPaymentModal(idx){
+  payingSupplierIdx = idx;
+  const s = suppliers[idx];
+  document.getElementById('pay-supplier-name').textContent = s.name + ' — Balance: ' + fmt(s.bal);
+  document.getElementById('pay-amount').value = '';
+  document.getElementById('modal-payment').classList.remove('hidden');
+}
+function closePaymentModal(){ document.getElementById('modal-payment').classList.add('hidden'); payingSupplierIdx=null; }
+function savePayment(){
+  const amt = Number(document.getElementById('pay-amount').value);
+  const s = suppliers[payingSupplierIdx];
+  if(!amt || amt <= 0){ toast('Enter a valid amount','error'); return; }
+  if(amt > s.bal){ toast('Amount exceeds balance owed','error'); return; }
+  s.paid += amt;
+  s.bal  -= amt;
+  s.status = s.bal===0 ? 'Paid' : 'Partial';
+  closePaymentModal();
+  toast('Payment of '+fmt(amt)+' recorded!');
+  renderView();
+}
+
+/* ══════════════════════════════════════════
+   WASTAGE VIEW
+══════════════════════════════════════════ */
+function viewWastage(){
+  const totalKg  = wastage.reduce((s,w)=>s+w.weight, 0);
+  const totalAmt = wastage.reduce((s,w)=>s+w.amount, 0);
+  return `<div class="space-y-4 sm:space-y-5">
+    ${pageHeader('Chicken Only','Chicken Wastage','Record skin, feet &amp; other wastage sales')}
+
+    <!-- Add Wastage Form -->
+    <div class="card p-4 sm:p-6 space-y-4">
+      <h3 class="font-black text-xs text-red-600 uppercase tracking-wider flex items-center gap-2">
+        <i class="fa-solid fa-circle-plus"></i>Add Wastage Entry
+      </h3>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div><label class="lbl">Date</label><input type="date" id="wst-date" value="2026-11-04" class="inp"></div>
+        <div><label class="lbl">Weight (KG)</label><input type="number" id="wst-weight" placeholder="e.g. 14" class="inp"></div>
+        <div><label class="lbl">Rate / KG (Rs)</label><input type="number" id="wst-rate" placeholder="e.g. 150" class="inp"></div>
+        <div><label class="lbl">Buyer (Optional)</label><input type="text" id="wst-buyer" placeholder="Buyer name" class="inp"></div>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div>
+          <label class="lbl">Payment</label>
+          <select id="wst-payment" class="inp">
+            <option value="paid">Paid</option>
+            <option value="partial">Partial</option>
+            <option value="credit">Credit</option>
+          </select>
+        </div>
+        <div class="col-span-2"><label class="lbl">Note</label><input type="text" id="wst-note" placeholder="Optional note" class="inp"></div>
+      </div>
+      <button onclick="saveWastage()" class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-3 rounded-2xl transition text-xs uppercase tracking-wider">Save Wastage Entry</button>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div class="metric-card"><span class="text-[10px] font-black uppercase text-slate-500 block mb-1">Today Wastage KG</span><div class="text-lg font-black text-slate-900">${totalKg} kg</div></div>
+      <div class="metric-card"><span class="text-[10px] font-black uppercase text-slate-500 block mb-1">Today Income</span><div class="text-lg font-black text-emerald-600">${fmt(totalAmt)}</div></div>
+      <div class="metric-card"><span class="text-[10px] font-black uppercase text-slate-500 block mb-1">Avg Rate</span><div class="text-lg font-black text-slate-900">${totalKg>0?fmt(Math.round(totalAmt/totalKg))+'/kg':'—'}</div></div>
+    </div>
+
+    ${tableWrap(['Date','Weight (kg)','Rate/KG','Amount','Buyer','Payment'],
+      wastage.map(w=>`<tr class="row">
+        <td class="p-3 px-4 font-bold">${w.date}</td>
+        <td class="p-3 px-4 font-bold">${w.weight} kg</td>
+        <td class="p-3 px-4">${fmt(w.rate)}</td>
+        <td class="p-3 px-4 font-black text-emerald-600">${fmt(w.amount)}</td>
+        <td class="p-3 px-4 text-slate-600 font-bold">${w.buyer}</td>
+        <td class="p-3 px-4">${statusBadge(w.payment)}</td>
+      </tr>`).join('')
+    )}
+  </div>`;
+}
+function saveWastage(){
+  const weight  = Number(document.getElementById('wst-weight')?.value);
+  const rate    = Number(document.getElementById('wst-rate')?.value);
+  const buyer   = document.getElementById('wst-buyer')?.value||'N/A';
+  const payment = document.getElementById('wst-payment')?.value||'paid';
+  const date    = document.getElementById('wst-date')?.value||'2026-11-04';
+  if(!weight||!rate){ toast('Enter weight and rate','error'); return; }
+  if((weight / 260) > 0.4){ toast('Warning: wastage > 40% of live kg!','error'); }
+  wastage.unshift({ id:'w'+Date.now(), date, weight, rate, amount:weight*rate, buyer, payment });
+  toast('Wastage entry saved!');
+  renderView();
+}
+
+/* ══════════════════════════════════════════
+   STOCK VIEW
+══════════════════════════════════════════ */
+function viewStock(){
+  const rows = [
+    ['Chicken Live', 0, 260, 238, 0, 22, 22, 0],
+    ['Chicken Meat', 0, 0,   175, 5,  0,  0,  0],
+    ['Beef',         0, 210, 175, 0,  35, 35, 0],
+    ['Mutton',       0, 95,  77,  0,  18, 18, 0],
+    ['Veal',         0, 0,   0,   0,  0,  0,  0]
+  ];
+  return `<div class="space-y-4 sm:space-y-5">
+    ${pageHeader('Inventory','Stock Overview','Daily stock movement by category')}
+
+    ${tableWrap(['Category','Opening','Purchased','Sold (Shop)','Sold (Online)','Expected Closing','Counted Closing','Shrinkage'],
+      rows.map(([cat,...vals])=>`<tr class="row">
+        <td class="p-3 px-4 font-black text-slate-900 uppercase">${cat}</td>
+        ${vals.map((v,i)=>`<td class="p-3 px-4 font-bold ${i===7&&v>0?'text-red-600':i===5||i===6?'text-slate-900':'text-slate-600'}">${v} kg</td>`).join('')}
+      </tr>`).join('')
+    )}
+
+    <div class="card p-4 text-center">
+      <div class="text-xs text-slate-500 font-medium mb-3">Run a manual count at any time</div>
+      <button onclick="toast('Mid-day count screen coming in Phase 3')" class="btn-red"><i class="fa-solid fa-clipboard-check mr-2"></i>Start Stock Count</button>
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════
+   REPORTS VIEW
+══════════════════════════════════════════ */
+function viewReports(){
+  const reportTypes = [
+    ['fa-calendar-day','Daily Summary','Close day totals for any date'],
+    ['fa-chart-bar','Sales by Period','Day / week / month by channel'],
+    ['fa-drumstick-bite','Sales by Item','kg, amount & share per product'],
+    ['fa-basket-shopping','Online Orders','Revenue, avg order, by area'],
+    ['fa-truck-ramp-box','Purchases','By supplier, category & date'],
+    ['fa-address-book','Supplier Ageing','0-7, 8-30, 30+ days'],
+    ['fa-trash-can','Chicken Wastage','kg, rate & income report'],
+    ['fa-boxes-stacked','Stock & Shrinkage','Per category & per day'],
+    ['fa-percent','Chicken Yield','Live kg, meat kg, yield %'],
+    ['fa-chart-line','Profit','Gross & net by day & month'],
+    ['fa-clock-rotate-left','Rate History','Each product rate over time'],
+    ['fa-scroll','Audit Log','Who did what & when']
+  ];
+  return `<div class="space-y-4 sm:space-y-5">
+    ${pageHeader('Analytics','Reports','Export &amp; analyse historical data')}
+
+    <!-- Date presets -->
+    <div class="card p-3 flex flex-wrap gap-2 items-center">
+      <span class="text-[10px] font-black uppercase text-slate-500 mr-1">Period:</span>
+      ${['Today','Yesterday','This Week','This Month','Last Month','Custom'].map((p,i)=>`
+        <button onclick="toast('Period: ${p}')" class="text-[10px] font-black px-3 py-1.5 rounded-xl ${i===0?'bg-red-600 text-white':'bg-slate-100 text-slate-600 hover:bg-slate-200'} transition">${p}</button>`
+      ).join('')}
+      <input type="date" value="2026-11-04" class="inp w-auto text-xs ml-auto">
+    </div>
+
+    <!-- Report cards grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5" style="width:100%;min-width:0;">
+      ${reportTypes.map(([ic,title,desc])=>`
+        <button onclick="toast('Opening: ${title}')" class="card p-4 text-left hover:border-red-400 hover:shadow-md transition group cursor-pointer border border-transparent">
+          <div class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center mb-2.5 group-hover:bg-red-600 group-hover:text-white transition">
+            <i class="fa-solid ${ic} text-xs"></i>
+          </div>
+          <div class="font-black text-slate-900 text-xs mb-0.5">${title}</div>
+          <div class="text-[10px] text-slate-500">${desc}</div>
+          <div class="mt-2 flex gap-1">
+            <span class="text-[9px] font-black px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded">XLS</span>
+            <span class="text-[9px] font-black px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded">PDF</span>
+          </div>
+        </button>`).join('')}
+    </div>
+  </div>`;
+}
+
+/* ─── CSV MODAL ─── */
+function openCSV(){ document.getElementById('modal-csv').classList.remove('hidden'); }
+function closeCSV(){ document.getElementById('modal-csv').classList.add('hidden'); document.getElementById('csv-ok').classList.add('hidden'); }
+function csvSelected(e){
+  const f = e.target.files[0];
+  if(f){
+    document.getElementById('csv-ok-txt').textContent = `"${f.name}" ready to import`;
+    document.getElementById('csv-ok').classList.remove('hidden');
+  }
+}
+function processCSV(){
+  const cat = document.getElementById('csv-cat').value;
+  const rateMap = {chicken:380, beef:750, mutton:1600};
+  purchases.unshift({
+    id:'csv-'+Date.now(), date:'2026-11-04', cat,
+    birds:cat==='chicken'?120:0, weight:150, rate:rateMap[cat],
+    total:150*rateMap[cat], paid:150*rateMap[cat], rem:0, type:'full', supplier:'CSV Import'
+  });
+  closeCSV();
+  toast(`CSV imported into ${cat.toUpperCase()}!`);
+  go('purchases');
+}
+
+/* ─── INIT ─── */
+go('overview');
+</script>
 </body>
 </html>
